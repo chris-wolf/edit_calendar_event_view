@@ -17,7 +17,6 @@ enum ResultType {
 /// An implementation of [EditCalendarEventViewPlatform] that uses method channels.
 class MethodChannelEditCalendarEventView extends EditCalendarEventViewPlatform {
   /// The method channel used to interact with the native platform.
-  @visibleForTesting
   final methodChannel = const MethodChannel('edit_calendar_event_view');
 
 

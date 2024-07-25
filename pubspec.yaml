@@ -10,7 +10,10 @@ environment:
 
 dependencies:
   collection: ^1.18.0
-  device_calendar: ^4.3.2
+  device_calendar:
+    git:
+      url: https://github.com/chris-wolf/device_calendar.git
+      ref: develop
   flutter:
     sdk: flutter
   flutter_timezone: ^1.0.8

@@ -1,5 +1,12 @@
 
 
+import 'package:device_calendar/device_calendar.dart';
+import 'package:edit_calendar_event_view/string_extensions.dart';
+import 'package:edit_calendar_event_view/time_unit.dart';
+import 'package:sprintf/sprintf.dart';
+
+import 'edit_calendar_event_page.dart';
+
 extension ListExtensions<T> on List<T> {
   T? firstOrNull() {
     try {
@@ -81,5 +88,36 @@ extension DateTimeExtension on DateTime {
 
   DateTime beginningOfMonth() {
     return DateTime(year, month, 1);
+  }
+}
+
+
+extension TimeUnitExtension on TimeUnit {
+  int inMinutes() {
+    switch (this) {
+      case TimeUnit.minutes:
+        return 1;
+      case TimeUnit.hours:
+        return 60; // 60 minutes in an hour
+      case TimeUnit.days:
+        return 1440; // 24 hours * 60 minutes
+      case TimeUnit.weeks:
+        return 10080; // 7 days * 24 hours * 60 minutes
+    }
+  }
+}
+extension ReminderExtension on Reminder {
+  String title() {
+    String resultString = "";
+    int minutes = this.minutes ?? 0;
+    for (final timeUnit in TimeUnit.values.reversed) {
+      final timeUnitMinutes = timeUnit.inMinutes();
+      if (minutes >= timeUnitMinutes) {
+        resultString += sprintf(
+            "n_${timeUnit.name}".localize(), [minutes ~/ timeUnitMinutes]);
+        minutes = minutes % timeUnitMinutes;
+      }
+    }
+    return sprintf('n_before'.localize(), [resultString.trim()]);
   }
 }
