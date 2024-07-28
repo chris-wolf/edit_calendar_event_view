@@ -189,7 +189,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     _websiteController.text = event.url?.toString() ?? '';
     loadEventColors();
     if (calendar?.isReadOnly ?? false) {
-      Future.delayed(Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Read only event.'), duration: Duration(seconds: 60))));
+      Future.delayed(const Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('Read only event.'), duration: Duration(seconds: 60))));
     }
   }
 
@@ -220,70 +220,76 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     buttonTextColor ??= Theme.of(context).primaryColor;
     final title =
         (widget.event == null ? 'add_event' : 'edit_event').localize();
-    return MultiPlatformScaffold(
-        title: title,
-        macOsLeading: MacosIconButton(
-          icon: const Icon(Icons.close, color: Color(0xff808080)),
-          onPressed: () => Navigator.pop(context),
-          padding: const EdgeInsets.all(5.0),
-        ),
-        actions: [
-          if (widget.event != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.delete,
-                ),
-                tooltip: 'delete'.localize(),
-                onPressed: () async {
-                  await deleteEvent(context);
-                },
-              ),
-            ),
-        ],
-        macOsActions: [
-          if (widget.event != null)
-            ToolBarIconButton(
-                label: 'delete'.localize(),
-                icon: const MacosIcon(
-                  CupertinoIcons.delete,
-                ),
-                onPressed: () {
-                  deleteEvent(context);
-                },
-                showLabel: false),
-        ],
-        body: Stack(
-          children: [
-            content(),
-            if (MacosTheme.maybeOf(context) != null)
-              Positioned(
-                right: 16.0,
-                bottom: 16.0,
-                child: PushButton(
-                  controlSize: ControlSize.large,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 5.0),
-                  child: Text('save'.localize()),
-                  onPressed: () {
-                    confirmPress(context);
+    return PopScope(
+      canPop: true,
+      onPopInvoked : (didPop){
+      ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+    },
+      child: MultiPlatformScaffold(
+          title: title,
+          macOsLeading: MacosIconButton(
+            icon: const Icon(Icons.close, color: Color(0xff808080)),
+            onPressed: () => Navigator.pop(context),
+            padding: const EdgeInsets.all(5.0),
+          ),
+          actions: [
+            if (widget.event != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 20.0),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.delete,
+                  ),
+                  tooltip: 'delete'.localize(),
+                  onPressed: () async {
+                    await deleteEvent(context);
                   },
                 ),
               ),
           ],
-        ),
-        floatingActionButton: calendar?.isReadOnly ?? false ? null : FloatingActionButton(
-          tooltip: 'save'.localize(),
-          onPressed: () async {
-            await confirmPress(context);
-          },
-          backgroundColor: Colors.green,
-          child: const Icon(
-            Icons.check,
-            color: Colors.white,
+          macOsActions: [
+            if (widget.event != null)
+              ToolBarIconButton(
+                  label: 'delete'.localize(),
+                  icon: const MacosIcon(
+                    CupertinoIcons.delete,
+                  ),
+                  onPressed: () {
+                    deleteEvent(context);
+                  },
+                  showLabel: false),
+          ],
+          body: Stack(
+            children: [
+              content(),
+              if (MacosTheme.maybeOf(context) != null)
+                Positioned(
+                  right: 16.0,
+                  bottom: 16.0,
+                  child: PushButton(
+                    controlSize: ControlSize.large,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 5.0),
+                    child: Text('save'.localize()),
+                    onPressed: () {
+                      confirmPress(context);
+                    },
+                  ),
+                ),
+            ],
           ),
-        ));
+          floatingActionButton: calendar?.isReadOnly ?? false ? null : FloatingActionButton(
+            tooltip: 'save'.localize(),
+            onPressed: () async {
+              await confirmPress(context);
+            },
+            backgroundColor: Colors.green,
+            child: const Icon(
+              Icons.check,
+              color: Colors.white,
+            ),
+          )),
+    );
   }
 
   Future<void> deleteEvent(BuildContext context) async {
@@ -1229,9 +1235,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
   }
   
-    
-    
-    
   void selectAvailablity() async {
     Availability? availability = (await showDialog<Availability>(
         context: context,
