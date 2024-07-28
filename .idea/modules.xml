@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/edit_calendar_event_view.iml" filepath="$PROJECT_DIR$/.idea/edit_calendar_event_view.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/edit_calendar_event_view_android.iml" filepath="$PROJECT_DIR$/android/edit_calendar_event_view_android.iml" />
     </modules>
   </component>
 </project>

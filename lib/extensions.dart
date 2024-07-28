@@ -5,8 +5,6 @@ import 'package:edit_calendar_event_view/string_extensions.dart';
 import 'package:edit_calendar_event_view/time_unit.dart';
 import 'package:sprintf/sprintf.dart';
 
-import 'edit_calendar_event_page.dart';
-
 extension ListExtensions<T> on List<T> {
   T? firstOrNull() {
     try {
@@ -106,6 +104,9 @@ extension TimeUnitExtension on TimeUnit {
     }
   }
 }
+
+
+
 extension ReminderExtension on Reminder {
   String title() {
     String resultString = "";

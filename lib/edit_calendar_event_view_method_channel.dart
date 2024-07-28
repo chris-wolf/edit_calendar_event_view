@@ -24,7 +24,7 @@ class MethodChannelEditCalendarEventView extends EditCalendarEventViewPlatform {
   Future<({ResultType resultType, String? eventId})> addOrEditCalendarEvent(BuildContext context, {String? calendarId, String? eventId, String? title, String? description, int? startDate, int? endDate, bool?  allDay}) async {
     if (Platform.isAndroid) {
       if (((await DeviceCalendarPlugin().hasPermissions()).data == true || (await DeviceCalendarPlugin().requestPermissions()).data == true) && context.mounted) {
-        var result = await EditCalendarEventPage.show(context, calendarId: calendarId, eventId: eventId, title: title, description: description, startDate: startDate, endDate: endDate, allDay: allDay);
+        var result = await EditCalendarEventPage.show(context, calendarId: calendarId, eventId: eventId, title: title, description: description, startDate: startDate, endDate: endDate, allDay: allDay, datePickerType: DatePickerType.cupertino);
         return result as ({ResultType resultType, String? eventId})? ?? (resultType: ResultType.canceled, eventId: eventId);
       } else {
         return  (resultType: ResultType.canceled, eventId: eventId);
