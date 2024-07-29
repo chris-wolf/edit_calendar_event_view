@@ -115,8 +115,8 @@ extension ReminderExtension on Reminder {
       final timeUnitMinutes = timeUnit.inMinutes();
       if (minutes >= timeUnitMinutes) {
         final count = minutes ~/ timeUnitMinutes;
-        resultString += sprintf(
-            "${count == 1 ? '1' : 'n'}_${timeUnit.name}".localize(), [count]);
+        resultString += '${sprintf(
+            "${count == 1 ? '1' : 'n'}_${timeUnit.name}".localize(), [count])} ';
         minutes = minutes % timeUnitMinutes;
       }
     }

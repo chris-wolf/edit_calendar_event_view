@@ -1,5 +1,5 @@
 Key,en,de
-read_only_event,Read only event,Nur-Lese-Ereignis
+read_only_event,This event can’t be edited,Dieses Ereignis kann nicht bearbeitet werden
 add_event,Add event,Ereignis hinzufügen
 edit_event,Edit event,Ereignis bearbeiten
 delete,Delete,Löschen
@@ -7,20 +7,20 @@ Save,Save,Speichern
 event_title,Title,Titel
 event_description,Descripition,Beschreibung
 all_day,All day,Alle
-event_start,Start,Starten
+event_begin,Begin,Anfang
 event_end,End,Ende
 repeat_once,Once,Einmal
 select_calendar,Select calendar,Kalender auswählen
 event_color,Event color,Ereignisfarbe
 not_set,Not set,Nicht festgelegt
-remove_reminder,Remove reminder,Erinnerung entfernen
+remove_reminder,Remove reminder,Erinnerung löschen
 add_reminder,Add reminder,Erinnerung hinzufügen
-event_location,Location,Standort
+event_location,Location,Ort
 event_website,Website,Webseite
 set_status,Set status,Status festlegen
 add_attendee,Add attendee,Teilnehmer hinzufügen
 custom,Custom,Benutzerdefiniert
-s_before,%s before,%s davor
+s_before,%s before,%s vor
 every,Every,Jeder
 day,day,Tag
 days,days,Tage
@@ -40,8 +40,8 @@ for_s,for %s,für %s
 in_s,in %s,in %s
 for_n_events,for %d events,für %d Veranstaltungen
 until_s,until %s,bis %s
-on_s,on %s,"""auf „%s“"""
-s_before,%s before,%s davor
+on_s,on %s,an %s
+s_before,%s before,%s vor
 n_minutes,%d minutes,%d Minuten
 n_hours,%d hours,%d Stunden
 n_days,%d days,%d Tage
@@ -51,13 +51,13 @@ n_weeks,%d weeks,%d Wochen
 1_days,1 day,1 Tag
 1_weeks,1 week,1 Woche
 add,Add,Hinzufügen
-custom_recurrency_rule,Custom recurrence rule,Benutzerdefinierte Wiederholungsregel
-repeat_every,Repeat every,Wiederhole jeden
+custom_recurrency_rule,Recurrence rule,Wiederholungsregel
+repeat_every,Repeat every,Wiederhole alle
 day_of_month,Day of month,Tag des Monats
 week_of_month,Week of month,Woche des Monats
-select_day_of_the_week,Select day of the week,Wochentag auswählen
+select_day_of_the_week,Select day of the week,Wählen Sie den Wochentag aus
 select_day_of_the_month,Select day of the month,Wählen Sie den Tag des Monats
-on_week_of_the_month,On following weeks of the month,In den folgenden Wochen des Monats
+on_week_of_the_month,On following weeks of the month,An den folgenden Wochen des Monats
 only_for_these_months,Only for these months,Nur für diese Monate
 ends,Ends,Endet
 never,Never,Nie
@@ -65,7 +65,7 @@ NONE,,
 CONFIRMED,Confirmed,Bestätigt
 CANCELED,Canceled,Abgesagt
 TENTATIVE,Tentative,Vorläufig
-FREE,Free,Kostenlos
+FREE,Available,Verfügbar
 BUSY,Busy,Beschäftigt
 UNAVAILABLE,Unavailable,Nicht verfügbar
 name,Name,Name
@@ -75,12 +75,17 @@ please_enter_a_name,Please enter a name,Bitte geben Sie einen Namen ein
 enter_valid_email,Please enter a valid email address,Bitte geben Sie eine gültige E-Mail-Adresse ein
 email_address,Email Address,E-Mail-Adresse
 role,Role,Rolle
-view_or_edit_attendance_details,View / edit attendance details,Ansicht / Bearbeitung der Teilnahmedetails
+view_or_edit_attendance_details,View / edit attendance details,Details zur Teilnahme ansehen/bearbeiten
 attendee_status,Attendee status,Teilnahmestatus
 REQUIRED,Required,Erforderlich
 OPTIONAL,Optional,Optional
 RESOURCE,Resource,Ressource
-ACCEPTED,Accepted,Angenommen
+ACCEPTED,Accepted,Akzeptiert
 DECLINED,Declined,Abgelehnt
 INVITED,Invited,Eingeladen
 all_day,All,Alle
+Daily,Daily,Täglich
+Weekly,Weekly,Wöchentlich
+Monthly,Monthly,Monatlich
+Yearly,Yearly,Jährlich
+all,All,Alle

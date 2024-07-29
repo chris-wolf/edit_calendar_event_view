@@ -61,7 +61,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
      headerTheme ??= Theme.of(context).textTheme.bodyLarge;
     return Scaffold(
       appBar: AppBar(
-        title: Text('custom_recurrency'.localize()),
+        title: Text('custom_recurrency_rule'.localize()),
       ),
       body: ListView(
           padding: EdgeInsets.all(24),

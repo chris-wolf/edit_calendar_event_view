@@ -1,11 +1,15 @@
+import 'package:devicelocale/devicelocale.dart';
 import 'package:edit_calendar_event_view/edit_calendar_event_view.dart';
 import 'package:edit_calendar_event_view/edit_calendar_event_view_method_channel.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 void main() {
   runApp(const MyApp());
-
-
 }
 
 class MyApp extends StatefulWidget {
@@ -18,10 +22,96 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   String? eventId;
+  static const supportedLocales = [
+    Locale('en'),
+    Locale('de'),
+    Locale('es'),
+    Locale('fr'),
+    Locale('pt'),
+    Locale('it'),
+    Locale('nl'),
+    Locale('pl'),
+    Locale('ru'),
+    Locale('ja'),
+    Locale('zh'),
+    Locale('pt', 'BR'),
+    Locale('bg'),
+    Locale('cs'),
+    Locale('da'),
+    Locale('et'),
+    Locale('fi'),
+    Locale('el'),
+    Locale('hu'),
+    Locale('lv'),
+    Locale('lt'),
+    Locale('ro'),
+    Locale('sk'),
+    Locale('sl'),
+    Locale('sv'),
+    Locale('hi'),
+    Locale('af'),
+    Locale('sq'),
+    Locale('am'),
+    Locale('ar'),
+    Locale('hy'),
+    Locale('az'),
+    Locale('bn'),
+    Locale('eu'),
+    Locale('be'),
+    Locale('my'),
+    Locale('ca'),
+    Locale('hr'),
+    Locale('is'),
+    Locale('id'),
+    Locale('kn'),
+    Locale('kk'),
+    Locale('km'),
+    Locale('ko'),
+    Locale('ky'),
+    Locale('lo'),
+    Locale('mk'),
+    Locale('ms'),
+    Locale('ml'),
+    Locale('mr'),
+    Locale('mn'),
+    Locale('ne'),
+    Locale('no'),
+    Locale('fa'),
+    Locale('pa'),
+    Locale('si'),
+    Locale('ta'),
+    Locale('te'),
+    Locale('th'),
+    Locale('tr'),
+    Locale('uk'),
+    Locale('ur'),
+    Locale('vi'),
+    Locale('zu'),
+    Locale('fil'),
+    Locale('gl'),
+    Locale('ka'),
+    Locale('he'),
+    Locale('sr'),
+    Locale('gu'),
+    Locale('sw')
+  ];
+
+
+  @override
+  void initState() {
+    loadDeviceLocale();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        localizationsDelegates: const  [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: supportedLocales,
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Add/Edit Event Example'),
@@ -86,5 +176,17 @@ class _MyAppState extends State<MyApp> {
           }
         ),
     ));
+  }
+
+
+  Locale deviceLocale = Locale('en');
+  void loadDeviceLocale() async {
+    deviceLocale = await Devicelocale.currentAsLocale ?? const Locale('en');
+    final supportedLocales = dateTimeSymbolMap();
+    if (supportedLocales[deviceLocale.toString()] != null) {
+      Intl.defaultLocale = deviceLocale.toString();
+    } else if (supportedLocales[deviceLocale.languageCode] != null) {
+      Intl.defaultLocale = deviceLocale.languageCode;
+    }
   }
 }
