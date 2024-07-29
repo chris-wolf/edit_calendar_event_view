@@ -13,6 +13,7 @@ import 'package:edit_calendar_event_view/time_zone_search_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -147,6 +148,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   final horizontalPadding = 16.0;
   Calendar? calendar;
 
+  FocusNode? titleFocusNode;
+  FocusNode descriptionFocusNode = FocusNode();
+  FocusNode locationFocusNode = FocusNode();
+  FocusNode websiteFocusNode = FocusNode();
   List<EventColor> eventColors = [];
 
   @override
@@ -301,9 +306,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
   }
 
-  static FocusNode node = FocusNode();
-  FocusNode descriptionNode = FocusNode();
-
   DateTime startDate() {
     return DateTime.fromMillisecondsSinceEpoch(
         event.start?.millisecondsSinceEpoch ??
@@ -319,19 +321,18 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   bool allDay() {
     return event.allDay ?? false;
   }
+  FocusNode contentFocusNode = FocusNode();
 
   Widget content() {
     return RawKeyboardListener(
         onKey: (RawKeyEvent event) {
           if (event is RawKeyDownEvent) {
             if (event.logicalKey == LogicalKeyboardKey.enter) {
-              if (descriptionNode.hasFocus == false) {
                 confirmPress(context);
-              }
             }
           }
         },
-        focusNode: node,
+        focusNode: contentFocusNode,
         child: Builder(builder: (context) {
           return Container(
               constraints: const BoxConstraints.expand(),
@@ -354,7 +355,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                       child: TextFormField(
                                         controller: _titleController,
                                         maxLines: 1,
-                                        focusNode: event.eventId == null ? (FocusNode()..requestFocus()) : null,
+                                        focusNode: event.title == null ? titleFocusNode ??= (FocusNode()..requestFocus()) : null,
                                         decoration: InputDecoration.collapsed(
                                             hintText: 'event_title'.localize(),
                                             hintStyle:
@@ -366,7 +367,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Padding(
                                       padding: EdgeInsets.all(horizontalPadding),
                                       child: TextFormField(
-                                        focusNode: descriptionNode,
+                                        focusNode: descriptionFocusNode,
                                         controller: _descriptionController,
                                         maxLines: 100,
                                         minLines: 1,
@@ -417,7 +418,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           Container(
                                             width: 64,
                                             alignment: Alignment.center,
-                                            child: Text('${'event_start'.localize()}:', style: const TextStyle(fontSize: 16),),
+                                            child: Text('${'event_begin'.localize()}:', style: const TextStyle(fontSize: 16),),
                                           ),
                                           Expanded(
                                             child: CupertinoDatePicker(
@@ -710,6 +711,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         TextButton(
                                             child: Text('${event.start?.timeZoneName} (UTC ${(event.start?.timeZone.offset ?? 0) >= 0 ? '+' : ''}${(event.start?.timeZone.offset ?? 0) ~/ (60 * 60 * 1000)})'),
                                             onPressed: () async {
+                                              unFocus();
                                               final timezone = await showSearch(context: context, delegate: TimeZoneSearchDelegate());
                                             if (timezone is MapEntry<String, Location>) {
                                               setState(() {
@@ -736,6 +738,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         ),
                                         Expanded(
                                           child: TextFormField(
+                                            focusNode: locationFocusNode,
                                             controller: _locationController,
                                             maxLines: 3,
                                             minLines: 1,
@@ -759,6 +762,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         ),
                                         Expanded(
                                           child: TextFormField(
+                                            focusNode: websiteFocusNode,
                                             controller: _websiteController,
                                             maxLines: 3,
                                             minLines: 1,
@@ -866,6 +870,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   void addReminder() async {
+    unFocus();
     Reminder? reminder = (await showDialog<Reminder>(
         context: context,
         builder: (BuildContext context) {
@@ -957,6 +962,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   void selectRecurrenceRule() async {
+    unFocus();
     RecurrenceRule? rule = (await showDialog<RecurrenceRule>(
         context: context,
         builder: (BuildContext context) {
@@ -996,6 +1002,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             ],
           );
         }));
+
     if (rule == null) {
       return;
     }
@@ -1056,6 +1063,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   Future<void> endDatePicker(BuildContext context) async {
     final hour = event.end?.hour;
     final minutes = event.end?.minute;
+    unFocus();
     final newDate = await showDatePicker(
       context: context,
       initialDate: endDate(),
@@ -1086,6 +1094,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     final hour = event.start?.hour;
     final minutes = event.start?.minute;
 
+    unFocus();
     final newDate = await showDatePicker(
       context: context,
       initialDate: endDate(),
@@ -1147,53 +1156,55 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     final interval = recurrenceRule.interval ?? 1;
 
     if (interval > 1) {
-      buffer.write("${'every'.localize()} $interval ");
+      buffer.write("${'every'.localize()} $interval");
     } else {
-      buffer.write('${'every'.localize()} ');
+      buffer.write('${'every'.localize()}');
     }
     switch (recurrenceRule.frequency) {
       case Frequency.daily:
-        buffer.write( (interval == 1 ? "day" : 'days').localize());
+        buffer.write( ' ${(interval == 1 ? "day" : 'days').localize()}');
         break;
       case Frequency.weekly:
-        buffer.write((interval == 1 ? "week" : 'weeks').localize());
+        buffer.write(' ${(interval == 1 ? "week" : 'weeks').localize()}');
         final weekdays = recurrenceRule.byWeekDays;
         if (weekdays.isNotEmpty) {
           buffer.write(" on ${weekdays.join(", ")}");
         }
         break;
       case Frequency.monthly:
-        buffer.write((interval == 1 ? "month" : 'months').localize());
+        buffer.write(' ${(interval == 1 ? "month" : 'months').localize()}');
         final monthDays = recurrenceRule.byMonthDays;
-        final bySetPosition = recurrenceRule.byMonthDays;
+        final bySetPosition = recurrenceRule.bySetPositions;
         final byWeekdays = recurrenceRule.byWeekDays;
         if (monthDays.isNotEmpty) {
           buffer.write(" ${sprintf('on_day_s'.localize(), [monthDays.join(", ")])}");
         } else if (byWeekdays.isNotEmpty) {
-          buffer.write(sprintf('on_s'.localize(),[byWeekdays.join(", ")]));
+          buffer.write(' ${sprintf('on_s'.localize(),[byWeekdays.map((weekDay) => DateFormat.E().format(DateTime(2018,1,1).add(Duration(days: weekDay.day - 1)))).join(", ")])}');
           if (bySetPosition.isNotEmpty) {
-            buffer.write(" ${sprintf('for_s'.localize(), [bySetPosition.map((weekNmbr) => '${weekNmbr}_week'.localize()).join(', ')])} ");
+            buffer.write(" ${sprintf('for_s'.localize(), [bySetPosition.map((weekNmbr) => '${weekNmbr}_week'.localize()).join(', ')])}");
           }
-          buffer.write(" ");
         }
         break;
       case Frequency.yearly:
-        buffer.write((interval == 1 ? "year" : 'years').localize());
-        final byMonth = recurrenceRule.byMonths;
-        if (byMonth.isNotEmpty) {
-          buffer.write(" ${sprintf('in_s'.localize(), [byMonth.join(", ")])} ");
-        }
+        buffer.write(' ${(interval == 1 ? "year" : 'years').localize()}');
+
         break;
       default:
         return "Unsupported frequency";
     }
 
+    final byMonth = recurrenceRule.byMonths;
+    if (byMonth.isNotEmpty) {
+      buffer.write(" ${sprintf('in_s'.localize(), [byMonth.map((monthNmbr) => DateFormat.MMM().format(DateTime(2020,monthNmbr, 15))).join(", ")])}");
+    }
+
     if (recurrenceRule.count != null) {
       buffer.write(" ${sprintf('for_n_events'.localize(), [recurrenceRule.count] )}");
     } else if (recurrenceRule.until != null) {
-      buffer.write(" ${sprintf('until_s'.localize(), [recurrenceRule.until])}");
+      buffer.write(" ${sprintf('until_s'.localize(), [DateFormat.yMMMMEEEEd().format(recurrenceRule.until!)])}");
     }
-    return buffer.toString().trim();
+    buffer.write('.');
+    return buffer.toString();
   }
 
   void addAttendee() async {
@@ -1210,6 +1221,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   void selectStatus() async {
+    unFocus();
     EventStatus? eventStatus = (await showDialog<EventStatus>(
         context: context,
         builder: (BuildContext context) {
@@ -1236,6 +1248,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
   
   void selectAvailability() async {
+    unFocus();
     Availability? availability = (await showDialog<Availability>(
         context: context,
         builder: (BuildContext context) {
@@ -1263,5 +1276,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
   String alarmTitle(Reminder reminder) {
     return reminder.title();
+  }
+
+
+  /// clear focus so keyuboard doesnt appear after returnung from dialog
+  void unFocus() {
+    contentFocusNode.requestFocus();
   }
 }

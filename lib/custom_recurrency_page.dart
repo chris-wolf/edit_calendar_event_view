@@ -29,8 +29,6 @@ class CustomRecurrencePage extends StatefulWidget {
 
 class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
   RecurrenceFrequency _frequency = RecurrenceFrequency.Daily;
-  DateTime? _until;
-  int? _count;
   int _interval = 1;
   MonthRuleType monthRuleType = MonthRuleType.monthDay;
   List<int> _byWeekDays = [];
@@ -81,7 +79,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
               _buildMonthRulePicker(),
             if (_frequency == RecurrenceFrequency.Weekly || (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek))
               _buildWeekDaysPicker(),
-            if (_frequency == RecurrenceFrequency.Weekly || (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek))
+            if ((_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek))
             _buildSetPositionPicker(),
             if (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.monthDay)
               _buildMonthDaysPicker(),
@@ -324,7 +322,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
                     );
                     if (date != null) {
                       setState(() {
-                        endDate = date;
+                        endDate = DateTime.utc(date.year, date.month, date.day);
                         ends = Ends.date;
                       });
                     }
@@ -343,7 +341,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
 
             if (date != null) {
               setState(() {
-                endDate = date;
+                endDate = DateTime.utc(date.year, date.month, date.day);
                 ends = Ends.date;
               });
             }
@@ -373,6 +371,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
         onSelectedItemChanged: (int value) {
           setState(() {
             count = value + 1;
+            ends = Ends.count;
           });
         },
         itemExtent: 32,
@@ -383,13 +382,13 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
   void _onSavePressed() {
     final recurrenceRule = RecurrenceRule(
       frequency: _frequency.toFrequency(),
-      until: ends == Ends.date ? _until : null,
-      count: ends == Ends.count ? _count : null,
+      until: ends == Ends.date ? endDate?.toUtc() : null,
+      count: ends == Ends.count ? count : null,
       interval: _interval,
       byWeekDays: (_frequency == RecurrenceFrequency.Weekly || _frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek) ? _byWeekDays.map((dayNumber) => ByWeekDayEntry(dayNumber)).toList() : [],
-      byMonthDays: (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek) ? _byMonthDays : [],
+      byMonthDays: (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.monthDay) ? _byMonthDays : [],
       bySetPositions: (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek) ? _bySetPositions : [],
-      byMonths:(_frequency == RecurrenceFrequency.Yearly ) ? [] :  _byMonths,
+      byMonths:(_frequency == RecurrenceFrequency.Yearly ) ? [] : _byMonths,
       weekStart: _weekStart,
     );
     Navigator.pop(context, recurrenceRule);
