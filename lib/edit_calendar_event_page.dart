@@ -189,7 +189,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     _websiteController.text = event.url?.toString() ?? '';
     loadEventColors();
     if (calendar?.isReadOnly ?? false) {
-      Future.delayed(const Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('Read only event.'), duration: Duration(seconds: 60))));
+      Future.delayed(const Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('read_only_event'.localize()), duration: const Duration(seconds: 60))));
     }
   }
 
@@ -417,7 +417,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           Container(
                                             width: 64,
                                             alignment: Alignment.center,
-                                            child: Text('start:', style: const TextStyle(fontSize: 16),),
+                                            child: Text('${'event_start'.localize()}:', style: const TextStyle(fontSize: 16),),
                                           ),
                                           Expanded(
                                             child: CupertinoDatePicker(
@@ -439,7 +439,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                             Container(
                                               width: 64,
                                               alignment: Alignment.center,
-                                              child: Text('end:', style: const TextStyle(fontSize: 16),),
+                                              child: Text('${'event_end'.localize()}:', style: const TextStyle(fontSize: 16),),
                                             ),
                                             Expanded(
                                               child: CupertinoDatePicker(
@@ -520,7 +520,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         leading: const Icon(Icons.refresh),
                                         title: Text(
                                             event.recurrenceRule == null
-                                                ? 'once'.localize()
+                                                ? 'repeat_once'.localize()
                                                 : getRRuleString(event.recurrenceRule),
                                             style: const TextStyle(fontSize: 16)),
                                         onTap: () async {
@@ -561,7 +561,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                   ),
                                                 ),
                                                 Text(calendar?.name ??
-                                                    'no_calendar'.localize()),
+                                                    'select_calendar'.localize()),
                                               ],
                                             ),
                                             onTap: () async {
@@ -579,7 +579,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               var result = await CalendarSelectionDialog
                                                   .showCalendarDialog(
                                                       context,
-                                                      'calendar'.localize(),
+                                                      'select_calendar'.localize(),
                                                       null,
                                                       calendars,
                                                       calendars.firstWhereOrNull(
@@ -638,7 +638,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                    event.updateEventColor(eventColor);
                                                 });
                                               }
-
                                             },
                                           ),
                                         ),
@@ -661,6 +660,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                   title: Text(alarmTitle(reminder)),
                                                   trailing: IconButton(
                                                     icon: Icon(
+                                                      semanticLabel: 'remove_reminder'.localize(),
                                                       Icons.close_rounded,
                                                       color: buttonTextColor,
                                                     ),
@@ -695,7 +695,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 16,),
                               Card(
                                 shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(Radius.circular(8.0))),
@@ -782,7 +781,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           child: Icon(Icons.question_mark),
                                         ),
                                         TextButton(
-                                          child: Text(event.status?.enumToString ?? 'set_status'.localize()),
+                                          child: Text(event.status?.enumToString.localize() ?? 'set_status'.localize()),
                                           onPressed: () async {
                                             selectStatus();
                                           },
@@ -798,9 +797,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           child: Icon(Icons.timelapse),
                                         ),
                                         TextButton(
-                                          child: Text(event.availability.enumToString),
+                                          child: Text(event.availability.enumToString.localize()),
                                           onPressed: () async {
-                                            selectAvailablity();
+                                            selectAvailability();
                                           },
                                         )
                                       ],
@@ -818,7 +817,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               for (final attendee
                                                   in event.attendees ?? [])
                                                 ListTile(
-                                                  title: Text('${attendee.name} (${Platform.isAndroid ? attendee.androidAttendeeDetails : attendee.iosAttendeeDetails })'),
+                                                  title: Text('${attendee.name} (${Platform.isAndroid ? (attendee.androidAttendeeDetails?.rolee.enumToString.toUpperCase() ?? 'NONE').localize() : attendee.iosAttendeeDetails })'),
                                                   subtitle: Text(attendee.emailAddress),
                                                   trailing: IconButton(
                                                     icon: Icon(
@@ -856,7 +855,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     )
                                   ],
                                 ),
-                              )
+                              ),
+                              const SizedBox(height: 72,)
                             ]),
                       ),
                     ),
@@ -891,7 +891,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 },
                 padding: const EdgeInsets.symmetric(
                     vertical: 12.0, horizontal: 24.0),
-                child: Text('custom_reminder'.localize()),
+                child: Text('custom'.localize()),
               ),
             ],
           );
@@ -907,7 +907,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
               TextEditingController(text: '10');
           int currentIndex = 0;
           return AlertDialog(
-            title: Text('custom_reminder'.localize()),
+            title: Text('custom'.localize()),
             content: StatefulBuilder(
               builder: (BuildContext context,
                   void Function(void Function()) setState) {
@@ -915,12 +915,13 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
+                      focusNode: FocusNode()..requestFocus(),
                       controller: numberController,
                       keyboardType: TextInputType.number,
                     ),
                     for (final timeUnit in TimeUnit.values)
                       RadioListTile(
-                        title: Text(sprintf('n_before'.localize(), [
+                        title: Text(sprintf('s_before'.localize(), [
                           sprintf("n_${timeUnit.name}".localize(), [0])
                         ]).replaceAll('0', '').trim()),
                         value: TimeUnit.values.indexOf(timeUnit),
@@ -935,7 +936,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('confirm'.localize()),
+                child: Text('add'.localize()),
                 onPressed: () {
                   int number = int.tryParse(numberController.text) ?? 0;
                   Navigator.of(context).pop(Reminder(
@@ -971,7 +972,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 },
                 padding: const EdgeInsets.symmetric(
                     vertical: 12.0, horizontal: 24.0),
-                child: Text('once'.localize()),
+                child: Text('repeat_once'.localize()),
               ),
               for (final recurrency in RecurrenceFrequency.values)
                 SimpleDialogOption(
@@ -990,7 +991,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 },
                 padding: const EdgeInsets.symmetric(
                     vertical: 12.0, horizontal: 24.0),
-                child: Text('custom_reminder'.localize()),
+                child: Text('custom'.localize()),
               ),
             ],
           );
@@ -1139,48 +1140,48 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
   String getRRuleString(RecurrenceRule? recurrenceRule) {
     if (recurrenceRule == null) {
-      return "once".localize();
+      return "repeat_once".localize();
     }
 
     final StringBuffer buffer = StringBuffer();
     final interval = recurrenceRule.interval ?? 1;
 
     if (interval > 1) {
-      buffer.write("Every $interval ");
+      buffer.write("${'every'.localize()} $interval ");
     } else {
-      buffer.write("Every ");
+      buffer.write('${'every'.localize()} ');
     }
-
     switch (recurrenceRule.frequency) {
       case Frequency.daily:
-        buffer.write("day".localize());
+        buffer.write( (interval == 1 ? "day" : 'days').localize());
         break;
       case Frequency.weekly:
-        buffer.write("week".localize());
+        buffer.write((interval == 1 ? "week" : 'weeks').localize());
         final weekdays = recurrenceRule.byWeekDays;
         if (weekdays.isNotEmpty) {
           buffer.write(" on ${weekdays.join(", ")}");
         }
         break;
       case Frequency.monthly:
-        buffer.write("month".localize());
+        buffer.write((interval == 1 ? "month" : 'months').localize());
         final monthDays = recurrenceRule.byMonthDays;
         final bySetPosition = recurrenceRule.byMonthDays;
         final byWeekdays = recurrenceRule.byWeekDays;
         if (monthDays.isNotEmpty) {
-          buffer.write(" on day ${monthDays.join(", ")}");
-        } else if (bySetPosition.isNotEmpty && byWeekdays.isNotEmpty) {
-          buffer.write(" on the ");
-          buffer.write(bySetPosition.join(", "));
+          buffer.write(" ${sprintf('on_day_s'.localize(), [monthDays.join(", ")])}");
+        } else if (byWeekdays.isNotEmpty) {
+          buffer.write(sprintf('on_s'.localize(),[byWeekdays.join(", ")]));
+          if (bySetPosition.isNotEmpty) {
+            buffer.write(" ${sprintf('for_s'.localize(), [bySetPosition.map((weekNmbr) => '${weekNmbr}_week'.localize()).join(', ')])} ");
+          }
           buffer.write(" ");
-          buffer.write(byWeekdays.join(", "));
         }
         break;
       case Frequency.yearly:
-        buffer.write("year".localize());
+        buffer.write((interval == 1 ? "year" : 'years').localize());
         final byMonth = recurrenceRule.byMonths;
         if (byMonth.isNotEmpty) {
-          buffer.write(" in ${byMonth.join(", ")}");
+          buffer.write(" ${sprintf('in_s'.localize(), [byMonth.join(", ")])} ");
         }
         break;
       default:
@@ -1188,12 +1189,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
 
     if (recurrenceRule.count != null) {
-      buffer.write(" for ${recurrenceRule.count} times");
+      buffer.write(" ${sprintf('for_n_events'.localize(), [recurrenceRule.count] )}");
     } else if (recurrenceRule.until != null) {
-      buffer.write(" until ${recurrenceRule.until}");
+      buffer.write(" ${sprintf('until_s'.localize(), [recurrenceRule.until])}");
     }
-
-    return buffer.toString();
+    return buffer.toString().trim();
   }
 
   void addAttendee() async {
@@ -1222,7 +1222,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   },
                   padding: const EdgeInsets.symmetric(
                       vertical: 12.0, horizontal: 24.0),
-                  child: Text(eventStatus.name),
+                  child: Text(eventStatus.enumToString.localize()),
                 ),
             ],
           );
@@ -1235,7 +1235,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
   }
   
-  void selectAvailablity() async {
+  void selectAvailability() async {
     Availability? availability = (await showDialog<Availability>(
         context: context,
         builder: (BuildContext context) {
@@ -1248,7 +1248,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   },
                   padding: const EdgeInsets.symmetric(
                       vertical: 12.0, horizontal: 24.0),
-                  child: Text(availability.name),
+                  child: Text(availability.enumToString.localize()),
                 ),
             ],
           );

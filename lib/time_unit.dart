@@ -4,7 +4,7 @@ import 'package:sprintf/sprintf.dart';
 
 enum TimeUnit { minutes, hours, days, weeks;
   String title() {
-    return sprintf('n_before'.localize(), [
+    return sprintf('s_before'.localize(), [
       sprintf('n_$name'.localize(), [0])
     ]).replaceAll('0', '').trim();
   }

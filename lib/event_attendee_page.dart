@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_calendar/device_calendar.dart';
+import 'package:edit_calendar_event_view/string_extensions.dart';
 import 'package:flutter/material.dart';
 
 late DeviceCalendarPlugin _deviceCalendarPlugin;
@@ -49,8 +50,8 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_attendee != null
-            ? 'Edit attendee ${_attendee!.name}'
-            : 'Add an Attendee'),
+            ? '${'edit_attendee'.localize} ${_attendee!.name}'
+            : 'add_an_attendee'.localize()),
       ),
       body: Column(
         children: [
@@ -65,11 +66,11 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                     validator: (value) {
                       if (_attendee?.isCurrentUser == false &&
                           (value == null || value.isEmpty)) {
-                        return 'Please enter a name';
+                        return 'please_enter_a_name'.localize();
                       }
                       return null;
                     },
-                    decoration: const InputDecoration(labelText: 'Name'),
+                    decoration: InputDecoration(labelText: 'name'.localize()),
                   ),
                 ),
                 Padding(
@@ -80,16 +81,16 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                       if (value == null ||
                           value.isEmpty ||
                           !value.contains('@')) {
-                        return 'Please enter a valid email address';
+                        return 'enter_valid_email'.localize();
                       }
                       return null;
                     },
                     decoration:
-                        const InputDecoration(labelText: 'Email Address'),
+                         InputDecoration(labelText: 'email_address'.localize()),
                   ),
                 ),
                 ListTile(
-                  leading: const Text('Role'),
+                  leading:  Text('role'.localize()),
                   trailing: DropdownButton<AttendeeRole>(
                     onChanged: (value) {
                       setState(() {
@@ -100,7 +101,7 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                     items: AttendeeRole.values
                         .map((role) => DropdownMenuItem(
                               value: role,
-                              child: Text(role.enumToString),
+                              child: Text(role.enumToString.toUpperCase().localize()),
                             ))
                         .toList(),
                   ),
@@ -118,13 +119,13 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                       //TODO: finish calling and getting attendee details from iOS
                     },
                     leading: const Icon(Icons.edit),
-                    title: const Text('View / edit iOS attendance details'),
+                    title:  Text('view_or_edit_attendance_details'.localize()),
                   ),
                 ),
                 Visibility(
                   visible: Platform.isAndroid,
                   child: ListTile(
-                    leading: const Text('Android attendee status'),
+                    leading:  Text('attendee_status'.localize()),
                     trailing: DropdownButton<AndroidAttendanceStatus>(
                       onChanged: (value) {
                         setState(() {
@@ -135,7 +136,7 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                       items: AndroidAttendanceStatus.values
                           .map((status) => DropdownMenuItem(
                                 value: status,
-                                child: Text(status.enumToString),
+                                child: Text(status.enumToString.toUpperCase().localize()),
                               ))
                           .toList(),
                     ),
@@ -144,30 +145,39 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                setState(() {
-                  _attendee = Attendee(
-                      name: _nameController.text,
-                      emailAddress: _emailAddressController.text,
-                      role: _role,
-                      isOrganiser: _attendee?.isOrganiser ?? false,
-                      isCurrentUser: _attendee?.isCurrentUser ?? false,
-                      iosAttendeeDetails: _attendee?.iosAttendeeDetails,
-                      androidAttendeeDetails: AndroidAttendeeDetails.fromJson(
-                          {'attendanceStatus': _status.index}));
-
-                  _emailAddressController.clear();
-                });
-
-                Navigator.pop(context, _attendee);
-              }
-            },
-            child: Text(_attendee != null ? 'Update' : 'Add'),
-          )
         ],
       ),
+        floatingActionButton: FloatingActionButton(
+          tooltip: 'save'.localize(),
+          onPressed: () async {
+            saveAttendee();
+          },
+          backgroundColor: Colors.green,
+          child: const Icon(
+            Icons.check,
+            color: Colors.white,
+          ),
+        )
     );
+  }
+
+  void saveAttendee() {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _attendee = Attendee(
+            name: _nameController.text,
+            emailAddress: _emailAddressController.text,
+            role: _role,
+            isOrganiser: _attendee?.isOrganiser ?? false,
+            isCurrentUser: _attendee?.isCurrentUser ?? false,
+            iosAttendeeDetails: _attendee?.iosAttendeeDetails,
+            androidAttendeeDetails: AndroidAttendeeDetails.fromJson(
+                {'attendanceStatus': _status.index}));
+
+        _emailAddressController.clear();
+      });
+
+      Navigator.pop(context, _attendee);
+    }
   }
 }

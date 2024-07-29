@@ -114,11 +114,12 @@ extension ReminderExtension on Reminder {
     for (final timeUnit in TimeUnit.values.reversed) {
       final timeUnitMinutes = timeUnit.inMinutes();
       if (minutes >= timeUnitMinutes) {
+        final count = minutes ~/ timeUnitMinutes;
         resultString += sprintf(
-            "n_${timeUnit.name}".localize(), [minutes ~/ timeUnitMinutes]);
+            "${count == 1 ? '1' : 'n'}_${timeUnit.name}".localize(), [count]);
         minutes = minutes % timeUnitMinutes;
       }
     }
-    return sprintf('n_before'.localize(), [resultString.trim()]);
+    return sprintf('s_before'.localize(), [resultString.trim()]);
   }
 }

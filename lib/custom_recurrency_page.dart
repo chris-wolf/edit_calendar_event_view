@@ -1,8 +1,10 @@
 import 'package:device_calendar/device_calendar.dart';
+import 'package:edit_calendar_event_view/extensions.dart';
 import 'package:edit_calendar_event_view/recurrency_frequency.dart';
 import 'package:edit_calendar_event_view/string_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 
 enum MonthRuleType {
@@ -61,24 +63,26 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
      headerTheme ??= Theme.of(context).textTheme.bodyLarge;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Recurrence Rule'),
+        title: Text('custom_recurrency'.localize()),
       ),
       body: ListView(
           padding: EdgeInsets.all(24),
           children: [
-            Text('Repeat every:',
+            Text('${'repeat_every'.localize()}:',
             style: headerTheme),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildNumberPicker(),
-                _buildFrequencyPicker(),
+                Expanded(child:_buildNumberPicker()),
+                Expanded(child:_buildFrequencyPicker() ,),
               ],
             ),
             if (_frequency == RecurrenceFrequency.Monthly)
               _buildMonthRulePicker(),
             if (_frequency == RecurrenceFrequency.Weekly || (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek))
               _buildWeekDaysPicker(),
+            if (_frequency == RecurrenceFrequency.Weekly || (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.nthWeek))
+            _buildSetPositionPicker(),
             if (_frequency == RecurrenceFrequency.Monthly && monthRuleType == MonthRuleType.monthDay)
               _buildMonthDaysPicker(),
             if (_frequency != RecurrenceFrequency.Yearly)
@@ -103,7 +107,6 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
 
   Widget _buildNumberPicker() {
     return SizedBox(
-      width: 72,
       height: 72,
       child: CupertinoPicker.builder(
         backgroundColor: Colors.transparent,
@@ -153,12 +156,12 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
         },
         children: {
           MonthRuleType.monthDay: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Monthday'),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text('day_of_month'.localize()),
           ),
           MonthRuleType.nthWeek: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('nthWeekDAY'),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text('week_of_month'.localize()),
           ),
         },
       ),
@@ -170,13 +173,13 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: sectionPadding),
-        Text('Select Days of the Week',
+        Text('${'select_day_of_the_week'.localize()}:',
         style: Theme.of(context).textTheme.bodyLarge,),
         Wrap(
           spacing: 8.0,
           children: List<Widget>.generate(7, (int index) {
             return ChoiceChip(
-              label: Text(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][index]),
+              label: Text(DateFormat.EEEE().format(DateTime(2018,1,1).add(Duration(days: index)))),
               selected: _byWeekDays.contains(index + 1),
               onSelected: (bool selected) {
                 setState(() {
@@ -199,7 +202,8 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: sectionPadding,),
-        Text('Select Days of the Month'),
+        Text('select_day_of_the_month'.localize(),
+          style: Theme.of(context).textTheme.bodyLarge,),
         Wrap(
           spacing: 8.0,
           children: List<Widget>.generate(31, (int index) {
@@ -223,29 +227,33 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
   }
 
   Widget _buildSetPositionPicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Select Set Position'),
-        Wrap(
-          spacing: 8.0,
-          children: List<Widget>.generate(5, (int index) {
-            return ChoiceChip(
-              label: Text(WeekNumber.values[index].name),
-              selected: _bySetPositions.contains(index + 1),
-              onSelected: (bool selected) {
-                setState(() {
-                  if (selected) {
-                    _bySetPositions.add(index + 1);
-                  } else {
-                    _bySetPositions.remove(index + 1);
-                  }
-                });
-              },
-            );
-          }),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${'on_week_of_the_month'.localize()}:',
+            style: Theme.of(context).textTheme.bodyLarge,),
+          Wrap(
+            spacing: 8.0,
+            children: List<Widget>.generate(5, (int index) {
+              return ChoiceChip(
+                label: Text('${index + 1}_week'.localize()),
+                selected: _bySetPositions.contains(index + 1),
+                onSelected: (bool selected) {
+                  setState(() {
+                    if (selected) {
+                      _bySetPositions.add(index + 1);
+                    } else {
+                      _bySetPositions.remove(index + 1);
+                    }
+                  });
+                },
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
@@ -254,12 +262,12 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: sectionPadding,),
-        Text('Select Months', style: headerTheme,),
+        Text('${'only_for_these_months'.localize()}:', style: headerTheme,),
         Wrap(
           spacing: 8.0,
           children: List<Widget>.generate(12, (int index) {
             return ChoiceChip(
-              label: Text(['All', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][index]),
+              label: Text(index == 0 ? 'all'.localize() : DateFormat.MMM().format(DateTime(2018,1,15).add(Duration(days: 30 * (index - 1))))),
               selected: (index == 0) ? _byMonths.isEmpty : (_byMonths.isNotEmpty && _byMonths.contains(index)),
               onSelected: (bool selected) {
                 setState(() {
@@ -284,11 +292,11 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: sectionPadding,),
-        Text('Ends:', style: headerTheme,),
+        Text('${'ends'.localize()}:', style: headerTheme,),
         RadioListTile(
           value: Ends.never,
           groupValue: ends,
-          title: Text('Never'),
+          title: Text('never'.localize()),
           onChanged: (value) {
             setState(() {
               ends = value!;
@@ -302,11 +310,11 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: Text('Am'),
+                child: Text('on_s'.localize().replaceAll('%s', '').trim()),
               ),
               Expanded(
                 child: ElevatedButton(
-                  child: Text((endDate ?? DateTime.now()).toIso8601String(),),
+                  child: Text(DateFormat.yMMMMEEEEd().format(endDate ?? DateTime.now())),
                   onPressed: () async {
                     final date = await showDatePicker(
                       context: context,
@@ -344,7 +352,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
         RadioListTile(
           value: Ends.count,
           groupValue: ends,
-          title: Row(children: [Text('Nach'), Expanded(child:_buildCountPicker()), Text('Terminen')]),
+          title: Row(children: [Text('for_n_events'.localize().split('%d').atIndexOrNull(0) ?? ''), Expanded(child:_buildCountPicker()), Text('for_n_events'.localize().split('%d').atIndexOrNull(1) ?? '')]),
           onChanged: (value) {
             setState(() {
               ends = value!;
