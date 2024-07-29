@@ -105,7 +105,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
 
   Widget _buildNumberPicker() {
     return SizedBox(
-      height: 72,
+      height: 128,
       child: CupertinoPicker.builder(
         backgroundColor: Colors.transparent,
         childCount: 100,
@@ -123,8 +123,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
 
   Widget _buildFrequencyPicker() {
     return SizedBox(
-      width: 72,
-      height: 72,
+      height: 128,
       child: CupertinoPicker.builder(
         backgroundColor: Colors.transparent,
         childCount: RecurrenceFrequency.values.length,
@@ -154,11 +153,11 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
         },
         children: {
           MonthRuleType.monthDay: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
             child: Text('day_of_month'.localize()),
           ),
           MonthRuleType.nthWeek: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8.0),
             child: Text('week_of_month'.localize()),
           ),
         },
