@@ -525,7 +525,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                             event.recurrenceRule == null
                                                 ? 'repeat_once'.localize()
                                                 : getRRuleString(event.recurrenceRule),
-                                            style: const TextStyle(fontSize: 16)),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(color: buttonTextColor)
+                                        ),
                                         onTap: () async {
                                           selectRecurrenceRule();
                                         }),
@@ -710,24 +714,30 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
                                           child: Icon(Icons.public),
                                         ),
-                                        TextButton(
-                                            child: Text('${event.start?.timeZoneName} (UTC ${(event.start?.timeZone.offset ?? 0) >= 0 ? '+' : ''}${(event.start?.timeZone.offset ?? 0) ~/ (60 * 60 * 1000)})'),
-                                            onPressed: () async {
-                                              unFocus();
-                                              final timezone = await showSearch(context: context, delegate: TimeZoneSearchDelegate());
-                                            if (timezone is MapEntry<String, Location>) {
-                                              setState(() {
-                                                final start = event.start;
-                                                final end = event.end;
-                                                if (start != null) {
-                                                  event.start = TZDateTime.from(start, timezone.value);
-                                                }
-                                                if (end != null) {
-                                                  event.end = TZDateTime.from(end, timezone.value);
-                                                }
-                                              });
-                                            }
-                                            },
+                                        Expanded(
+                                          child: ListTile(
+                                              title: Text('${event.start?.timeZoneName} (UTC ${(event.start?.timeZone.offset ?? 0) >= 0 ? '+' : ''}${(event.start?.timeZone.offset ?? 0) ~/ (60 * 60 * 1000)})',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(color: buttonTextColor)),
+                                              onTap: () async {
+                                                unFocus();
+                                                final timezone = await showSearch(context: context, delegate: TimeZoneSearchDelegate());
+                                              if (timezone is MapEntry<String, Location>) {
+                                                setState(() {
+                                                  final start = event.start;
+                                                  final end = event.end;
+                                                  if (start != null) {
+                                                    event.start = TZDateTime.from(start, timezone.value);
+                                                  }
+                                                  if (end != null) {
+                                                    event.end = TZDateTime.from(end, timezone.value);
+                                                  }
+                                                });
+                                              }
+                                              },
+                                          ),
                                         )
                                       ],
                                     ),
@@ -786,11 +796,18 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
                                           child: Icon(Icons.question_mark),
                                         ),
-                                        TextButton(
-                                          child: Text(event.status?.enumToString.localize() ?? 'set_status'.localize()),
-                                          onPressed: () async {
-                                            selectStatus();
-                                          },
+                                        Expanded(
+                                          child: ListTile(
+                                            title: Text(event.status?.enumToString.localize() ?? 'set_status'.localize(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(color: buttonTextColor)
+                                            ),
+                                            onTap: () async {
+                                              selectStatus();
+                                            },
+                                          ),
                                         )
                                       ],
                                     ),
@@ -802,11 +819,17 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
                                           child: Icon(Icons.timelapse),
                                         ),
-                                        TextButton(
-                                          child: Text(event.availability.enumToString.localize()),
-                                          onPressed: () async {
-                                            selectAvailability();
-                                          },
+                                        Expanded(
+                                          child: ListTile(
+                                            title: Text(event.availability.enumToString.localize(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(color: buttonTextColor),),
+                                            onTap: () async {
+                                              selectAvailability();
+                                            },
+                                          ),
                                         )
                                       ],
                                     ),
