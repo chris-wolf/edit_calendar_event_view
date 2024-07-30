@@ -107,22 +107,6 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                   ),
                 ),
                 Visibility(
-                  visible: Platform.isIOS,
-                  child: ListTile(
-                    onTap: () async {
-                      _deviceCalendarPlugin = DeviceCalendarPlugin();
-
-                      await _deviceCalendarPlugin
-                          .showiOSEventModal(_eventId);
-           //           Navigator.popUntil(
-                //          context, ModalRoute.withName(AppRoutes.calendars));
-                      //TODO: finish calling and getting attendee details from iOS
-                    },
-                    leading: const Icon(Icons.edit),
-                    title:  Text('view_or_edit_attendance_details'.localize()),
-                  ),
-                ),
-                Visibility(
                   visible: Platform.isAndroid,
                   child: ListTile(
                     leading:  Text('attendee_status'.localize()),

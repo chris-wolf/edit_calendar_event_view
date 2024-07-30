@@ -22,34 +22,11 @@ class MethodChannelEditCalendarEventView extends EditCalendarEventViewPlatform {
 
   @override
   Future<({ResultType resultType, String? eventId})> addOrEditCalendarEvent(BuildContext context, {String? calendarId, String? eventId, String? title, String? description, int? startDate, int? endDate, bool?  allDay}) async {
-    if (Platform.isAndroid) {
       if (((await DeviceCalendarPlugin().hasPermissions()).data == true || (await DeviceCalendarPlugin().requestPermissions()).data == true) && context.mounted) {
         var result = await EditCalendarEventPage.show(context, calendarId: calendarId, eventId: eventId, title: title, description: description, startDate: startDate, endDate: endDate, allDay: allDay, datePickerType: DatePickerType.cupertino);
         return result as ({ResultType resultType, String? eventId})? ?? (resultType: ResultType.canceled, eventId: eventId);
       } else {
         return  (resultType: ResultType.canceled, eventId: eventId);
       }
-
-    } else {
-      final result = await methodChannel.invokeMethod<String?>(
-        'addOrEditCalendarEvent',
-        {
-          'calendarId': calendarId,
-          'eventId': eventId,
-          'title': title,
-          'description': description,
-          'startDate': startDate,
-          'endDate': endDate,
-          'allDay': allDay,
-        },
-      );
-      if (result == null) {
-        return (resultType: ResultType.canceled, eventId: eventId);
-      } else if (result == "deleted") {
-        return (resultType: ResultType.deleted, eventId: eventId);
-      } else {
-        return (resultType: ResultType.saved, eventId: result);
-      }
     }
-  }
 }

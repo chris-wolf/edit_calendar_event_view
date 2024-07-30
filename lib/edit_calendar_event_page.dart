@@ -411,28 +411,28 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           });
                                         }),
                                     if (widget.datePickerType == DatePickerType.cupertino)
-                                    SizedBox(
-                                      height: 96,
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 64,
-                                            alignment: Alignment.center,
-                                            child: Text('${'event_begin'.localize()}:', style: const TextStyle(fontSize: 16),),
-                                          ),
-                                          Expanded(
-                                            child: CupertinoDatePicker(
-                                                use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
-                                                key: ValueKey((allDay(), updatedStartDate?.hashCode)),
-                                                mode: allDay() ? CupertinoDatePickerMode.date : CupertinoDatePickerMode.dateAndTime,
-                                                initialDateTime: startDate(),
-                                                onDateTimeChanged: (dateTime) {
-                                                  setStartDate(dateTime, null, null);
-                                                }),
-                                          ),
-                                        ],
+                                      SizedBox(
+                                        height: 96,
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 64,
+                                              alignment: Alignment.center,
+                                              child: Text('${'event_begin'.localize()}:', style: const TextStyle(fontSize: 16),),
+                                            ),
+                                            Expanded(
+                                              child: CupertinoDatePicker(
+                                                  use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+                                                  key: ValueKey((allDay(), updatedStartDate?.hashCode)),
+                                                  mode: allDay() ? CupertinoDatePickerMode.date : CupertinoDatePickerMode.dateAndTime,
+                                                  initialDateTime: startDate(),
+                                                  onDateTimeChanged: (dateTime) {
+                                                    setStartDate(dateTime, null, null);
+                                                  }),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
                                     if (widget.datePickerType == DatePickerType.cupertino)
                                       SizedBox(
                                         height: 96,
@@ -457,68 +457,68 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         ),
                                       ),
                                     if (widget.datePickerType == DatePickerType.material)
-                                    ListTile(
-                                      title: Row(
-                                        children: [
-                                          const SizedBox(width: 26),
-                                          TextButton(
-                                              onPressed: () async {
-                                                await startDatePicker(context);
-                                              },
-                                              child: Text(
-                                                  DateFormat('EEE, MMM d, yyyy')
-                                                      .format(startDate()),
-                                                  style: const TextStyle(fontSize: 16))),
-                                          const Expanded(
-                                            child: SizedBox(),
-                                          ),
-                                          if (allDay() == false)
+                                      ListTile(
+                                        title: Row(
+                                          children: [
+                                            const SizedBox(width: 26),
                                             TextButton(
-                                                onPressed: () {
-                                                  setStartTime(context);
+                                                onPressed: () async {
+                                                  await startDatePicker(context);
                                                 },
                                                 child: Text(
-                                                    DateFormat('h:mm a')
+                                                    DateFormat('EEE, MMM d, yyyy')
                                                         .format(startDate()),
-                                                    style:
-                                                        const TextStyle(fontSize: 16))),
-                                        ],
-                                      ),
-                                      onTap: () async {
-                                        await startDatePicker(context);
-                                      },
-                                    ),
-                                    if (widget.datePickerType == DatePickerType.material)
-                                    ListTile(
-                                      title: Row(
-                                        children: [
-                                          const SizedBox(width: 26),
-                                          TextButton(
-                                              onPressed: () async {
-                                                await endDatePicker(context);
-                                              },
-                                              child: Text(
-                                                  DateFormat('EEE, MMM d, yyyy')
-                                                      .format(endDate()),
-                                                  style: const TextStyle(fontSize: 16))),
-                                          const Expanded(
-                                            child: SizedBox(),
-                                          ),
-                                          if (allDay() == false)
-                                            TextButton(
-                                              onPressed: () {
-                                                setEndTime(context);
-                                              },
-                                              child: Text(
-                                                  DateFormat('h:mm a').format(endDate()),
-                                                  style: const TextStyle(fontSize: 16)),
+                                                    style: const TextStyle(fontSize: 16))),
+                                            const Expanded(
+                                              child: SizedBox(),
                                             ),
-                                        ],
+                                            if (allDay() == false)
+                                              TextButton(
+                                                  onPressed: () {
+                                                    setStartTime(context);
+                                                  },
+                                                  child: Text(
+                                                      DateFormat('h:mm a')
+                                                          .format(startDate()),
+                                                      style:
+                                                      const TextStyle(fontSize: 16))),
+                                          ],
+                                        ),
+                                        onTap: () async {
+                                          await startDatePicker(context);
+                                        },
                                       ),
-                                      onTap: () async {
-                                        await endDatePicker(context);
-                                      },
-                                    ),
+                                    if (widget.datePickerType == DatePickerType.material)
+                                      ListTile(
+                                        title: Row(
+                                          children: [
+                                            const SizedBox(width: 26),
+                                            TextButton(
+                                                onPressed: () async {
+                                                  await endDatePicker(context);
+                                                },
+                                                child: Text(
+                                                    DateFormat('EEE, MMM d, yyyy')
+                                                        .format(endDate()),
+                                                    style: const TextStyle(fontSize: 16))),
+                                            const Expanded(
+                                              child: SizedBox(),
+                                            ),
+                                            if (allDay() == false)
+                                              TextButton(
+                                                onPressed: () {
+                                                  setEndTime(context);
+                                                },
+                                                child: Text(
+                                                    DateFormat('h:mm a').format(endDate()),
+                                                    style: const TextStyle(fontSize: 16)),
+                                              ),
+                                          ],
+                                        ),
+                                        onTap: () async {
+                                          await endDatePicker(context);
+                                        },
+                                      ),
                                     ListTile(
                                         leading: const Icon(Icons.refresh),
                                         title: Text(
@@ -544,16 +544,25 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   children: [
                                     Row(
                                       children: [
+
+                                        const Padding(
+                                          padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                          child: Icon(Icons.calendar_month),
+                                        ),
                                         Expanded(
                                           child: ListTile(
                                             title: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                const Expanded(
-                                                  child: Align(
-                                                      alignment: Alignment.centerLeft,
-                                                      child: Icon(Icons.calendar_month)),
-                                                ),
+                                                Expanded(child: Align(
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text('${'calendar'.localize()}',
+                                                    maxLines: 1,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(color: buttonTextColor),),
+                                                )),
                                                 Padding(
                                                   padding:
                                                       const EdgeInsets.only(right: 4.0),
@@ -611,36 +620,42 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     if(eventColors.isNotEmpty)
                                     Row(
                                       children: [
+                                        const Padding(
+                                          padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                          child: Icon(Icons.color_lens_outlined),
+                                        ),
                                         Expanded(
                                           child: ListTile(
                                             title: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                const Expanded(
-                                                  child: Align(
-                                                      alignment: Alignment.centerLeft,
-                                                      child: Icon(Icons.color_lens_outlined)),
-                                                ),
-                                                Text('${'event_color'.localize()}:'),
-                                                SizedBox(width: 4,),
+                                                Expanded(child: Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Text('${'event_color'.localize()}',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleMedium
+                                                          ?.copyWith(color: buttonTextColor),),
+                                                )),
                                                 if ((event.color ?? 0) != 0)
                                                 Container(
                                                     alignment: Alignment.center,
-                                                    width: 15,
-                                                    height: 15,
+                                                    width: 20,
+                                                    height: 20,
                                                     decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
                                                         color:
                                                         Color(event.color ?? 0)),
                                                 ),
                                                 if ((event.color ?? 0) == 0)
-                                                Text('not_set'.localize()),
+                                                Text('not_set'.localize(),
+                                                ),
                                               ],
                                             ),
                                             onTap: () async {
-                                              final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context);
+                                              final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context, selectedColor: event.color == null ? null : Color(event.color!), canReset: true);
                                               final eventColor = eventColors.firstWhereOrNull((eventColor) => Color(eventColor.color) == color);
-                                              if (eventColor != null) {
+                                              if (eventColor != null || color == Colors.transparent) {
                                                 setState(()  {
                                                    event.updateEventColor(eventColor);
                                                 });
@@ -846,7 +861,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               for (final attendee
                                                   in event.attendees ?? [])
                                                 ListTile(
-                                                  title: Text('${attendee.name} (${Platform.isAndroid ? (attendee.androidAttendeeDetails?.rolee.enumToString.toUpperCase() ?? 'NONE').localize() : attendee.iosAttendeeDetails })'),
+                                                  title: Text('${attendee.name} (${Platform.isAndroid ? (attendee.androidAttendeeDetails?.rolee.enumToString.toUpperCase() ?? 'NONE').localize() : (attendee.iosAttendeeDetails?.IosAttendanceStatus.enumToString ?? 'NONE').localize() })'),
                                                   subtitle: Text(attendee.emailAddress),
                                                   trailing: IconButton(
                                                     icon: Icon(
@@ -893,6 +908,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
               ));
         }));
   }
+
 
   void addReminder() async {
     unFocus();
@@ -1162,7 +1178,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.title = _titleController.text;
     event.description = _descriptionController.text;
     event.location = _locationController.text;
-    event.url = Uri.tryParse(_websiteController.text ?? '');
+    event.url = parseUrl(_websiteController.text.trim());
 
 
     final eventId = await DeviceCalendarPlugin().createOrUpdateEvent(event);
@@ -1307,5 +1323,27 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   /// clear focus so keyuboard doesnt appear after returnung from dialog
   void unFocus() {
     contentFocusNode.requestFocus();
+  }
+
+  Uri? parseUrl(String url) {
+    // Add a default scheme if none is present
+    if (!url.startsWith(RegExp(r'http[s]?://'))) {
+      url = 'https://$url';
+    }
+
+    // Attempt to parse the URL and catch any errors
+    try {
+      Uri? uri = Uri.tryParse(url);
+      // Additional validation to ensure the URI has a scheme and host
+      if (uri != null && uri.hasScheme && uri.hasAuthority) {
+        return uri;
+      }
+    } catch (e) {
+      // Handle any exceptions (optional logging)
+      print('Error parsing URL: $e');
+    }
+
+    // Return null if the URL is invalid
+    return null;
   }
 }
