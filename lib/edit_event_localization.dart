@@ -9,8 +9,8 @@ import 'common/localized_map.dart';
 
 class EditEventLocalization {
 
-static String localize(String key) {
-  final locale = Intl.getCurrentLocale();
+static String localize(String key, {String? testLocale}) {
+  final locale = testLocale ?? Intl.getCurrentLocale();
   final translateMap = localizedMap[key];
   if (translateMap == null) {
     return key;

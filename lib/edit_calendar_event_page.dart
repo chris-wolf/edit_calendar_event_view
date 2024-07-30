@@ -422,6 +422,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                           ),
                                           Expanded(
                                             child: CupertinoDatePicker(
+                                                use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
                                                 key: ValueKey((allDay(), updatedStartDate?.hashCode)),
                                                 mode: allDay() ? CupertinoDatePickerMode.date : CupertinoDatePickerMode.dateAndTime,
                                                 initialDateTime: startDate(),
@@ -445,6 +446,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                             Expanded(
                                               child: CupertinoDatePicker(
                                                   key: ValueKey((allDay(), updatedEndDate?.hashCode)),
+                                                  use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
                                                   mode: allDay() ? CupertinoDatePickerMode.date : CupertinoDatePickerMode.dateAndTime,
                                                   initialDateTime: endDate(),
                                                   onDateTimeChanged: (dateTime) {
