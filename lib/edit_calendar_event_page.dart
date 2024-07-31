@@ -45,12 +45,12 @@ class EditCalendarEventPage extends StatefulWidget {
       String? description,
       int? startDate,
       int? endDate,
-      bool? allDay, DatePickerType? datePickerType}) async {
+      bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars}) async {
     if (EditCalendarEventPage.currentTimeZone == null) {
       tz.initializeTimeZones();
       currentTimeZone = await FlutterTimezone.getLocalTimezone();
     }
-    List<Calendar> calendars =
+    List<Calendar> calendars = availableCalendars ??
         (await DeviceCalendarPlugin().retrieveCalendars()).data?.toList() ?? [];
     if (eventId != null) {
       if (calendarId != null) {
@@ -71,9 +71,6 @@ class EditCalendarEventPage extends StatefulWidget {
         }
       }
     }
-    calendars =
-        calendars.where((element) => element.isReadOnly == false).toList();
-
     Calendar? calendar;
 
     if (calendarId != null) {
@@ -91,6 +88,9 @@ class EditCalendarEventPage extends StatefulWidget {
     if (!context.mounted) {
       return;
     }
+    if (calendar?.isReadOnly ?? false) {
+      datePickerType = DatePickerType.material;
+    }
     final page = EditCalendarEventPage(
       event: event,
       calendar: calendar,
@@ -99,7 +99,8 @@ class EditCalendarEventPage extends StatefulWidget {
       startDate: startDate,
       endDate: endDate,
       allDay: allDay,
-      datePickerType: datePickerType ?? DatePickerType.material
+      datePickerType: datePickerType ?? DatePickerType.material,
+      availableCalendars: calendars.where((calendar) => calendar.isReadOnly == false).toList()
     );
     if (MacosTheme.maybeOf(context) != null) {
       return MultiPlatformDialog.show(context, page,
@@ -120,6 +121,7 @@ class EditCalendarEventPage extends StatefulWidget {
   final int? endDate;
   final bool? allDay;
   final DatePickerType datePickerType;
+  final List<Calendar>? availableCalendars;
 
   const EditCalendarEventPage(
       {super.key,
@@ -130,7 +132,7 @@ class EditCalendarEventPage extends StatefulWidget {
       this.startDate,
       this.endDate,
       this.allDay,
-      required this.datePickerType
+      required this.datePickerType, this.availableCalendars
       });
 
   @override
@@ -157,10 +159,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   @override
   void initState() {
     super.initState();
-    print(tz.local);
     tz.setLocalLocation(
         tz.getLocation(EditCalendarEventPage.currentTimeZone ?? 'UTC'));
-    print(tz.local);
     calendar = widget.calendar;
     if (widget.event != null) {
       event = widget.event!;
@@ -224,7 +224,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
     buttonTextColor ??= Theme.of(context).primaryColor;
     final title =
-        (widget.event == null ? 'add_event' : 'edit_event').localize();
+        (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false) ? 'view_event' : 'edit_event').localize();
     return PopScope(
       canPop: true,
       onPopInvoked : (didPop){
@@ -544,7 +544,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   children: [
                                     Row(
                                       children: [
-
                                         const Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
                                           child: Icon(Icons.calendar_month),
@@ -581,7 +580,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               ],
                                             ),
                                             onTap: () async {
-                                              final calendars =
+                                              final calendars = widget.availableCalendars ??
                                                   (await DeviceCalendarPlugin()
                                                               .retrieveCalendars())
                                                           .data
@@ -756,6 +755,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         )
                                       ],
                                     ),
+                                    divider(),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
@@ -780,6 +780,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         )
                                       ],
                                     ),
+                                    divider(),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
@@ -804,6 +805,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         )
                                       ],
                                     ),
+                                    divider(),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
@@ -826,7 +828,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         )
                                       ],
                                     ),
-
+                                    divider(),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
@@ -848,6 +850,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         )
                                       ],
                                     ),
+                                    divider(),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -1340,7 +1343,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       }
     } catch (e) {
       // Handle any exceptions (optional logging)
-      print('Error parsing URL: $e');
+      debugPrint('Error parsing URL: $e');
     }
 
     // Return null if the URL is invalid
