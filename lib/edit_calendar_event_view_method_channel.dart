@@ -21,9 +21,9 @@ class MethodChannelEditCalendarEventView extends EditCalendarEventViewPlatform {
 
 
   @override
-  Future<({ResultType resultType, String? eventId})> addOrEditCalendarEvent(BuildContext context, {String? calendarId, String? eventId, String? title, String? description, int? startDate, int? endDate, bool?  allDay}) async {
-      if (((await DeviceCalendarPlugin().hasPermissions()).data == true || (await DeviceCalendarPlugin().requestPermissions()).data == true) && context.mounted) {
-        var result = await EditCalendarEventPage.show(context, calendarId: calendarId, eventId: eventId, title: title, description: description, startDate: startDate, endDate: endDate, allDay: allDay, datePickerType: DatePickerType.cupertino);
+  Future<({ResultType resultType, String? eventId})> addOrEditCalendarEvent(BuildContext context, {String? calendarId, String? eventId, String? title, String? description, int? startDate, int? endDate, bool?  allDay, List<Calendar>? availableCalendars, DatePickerType? datePickerType, Event? event}) async {
+      if (((await DeviceCalendarPlugin(shouldInitTimezone = false).hasPermissions()).data == true || (await DeviceCalendarPlugin(shouldInitTimezone = false).requestPermissions()).data == true) && context.mounted) {
+        var result = await EditCalendarEventPage.show(context, calendarId: calendarId, eventId: eventId, title: title, description: description, startDate: startDate, endDate: endDate, allDay: allDay, datePickerType: datePickerType, availableCalendars: availableCalendars, event: event);
         return result as ({ResultType resultType, String? eventId})? ?? (resultType: ResultType.canceled, eventId: eventId);
       } else {
         return  (resultType: ResultType.canceled, eventId: eventId);

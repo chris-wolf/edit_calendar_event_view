@@ -108,7 +108,7 @@ extension TimeUnitExtension on TimeUnit {
 
 
 extension ReminderExtension on Reminder {
-  String title() {
+  String title({bool forNotification = false}) {
     String resultString = "";
     int minutes = this.minutes ?? 0;
     for (final timeUnit in TimeUnit.values.reversed) {
@@ -120,6 +120,6 @@ extension ReminderExtension on Reminder {
         minutes = minutes % timeUnitMinutes;
       }
     }
-    return sprintf('s_before'.localize(), [resultString.trim()]);
+    return sprintf((forNotification ? 'in_s' : 's_before').localize(), [resultString.trim()]);
   }
 }

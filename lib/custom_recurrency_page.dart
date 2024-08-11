@@ -5,6 +5,7 @@ import 'package:edit_calendar_event_view/string_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'edit_calendar_event_page.dart';
 
 
 enum MonthRuleType {
@@ -60,6 +61,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
   Widget build(BuildContext context) {
      headerTheme ??= Theme.of(context).textTheme.bodyLarge;
     return Scaffold(
+      backgroundColor: EditCalendarEventPage.backgroundColor,
       appBar: AppBar(
         title: Text('custom_recurrency_rule'.localize()),
       ),

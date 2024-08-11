@@ -1,6 +1,8 @@
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import 'edit_calendar_event_page.dart';
 import 'edit_calendar_event_view_method_channel.dart';
 
 abstract class EditCalendarEventViewPlatform extends PlatformInterface {
@@ -25,7 +27,7 @@ abstract class EditCalendarEventViewPlatform extends PlatformInterface {
   }
 
   Future<({ResultType resultType, String? eventId})> addOrEditCalendarEvent(
-      BuildContext context, {String? calendarId, String? eventId, String? title, String? description, int? startDate, int? endDate, bool? allDay}) async {
+      BuildContext context, {String? calendarId, String? eventId, String? title, String? description, int? startDate, int? endDate, bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars, Event? event}) async {
     throw UnimplementedError('addOrEditCalendarEvent() has not been implemented.');
   }
 }

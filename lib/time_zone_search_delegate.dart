@@ -2,6 +2,7 @@ import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'edit_calendar_event_page.dart';
 
 class TimeZoneSearchDelegate extends SearchDelegate<MapEntry<String, Location>?> {
   final List<MapEntry<String, Location>> timeZones = tz.timeZoneDatabase.locations.entries.toList();
@@ -52,7 +53,7 @@ class TimeZoneSearchDelegate extends SearchDelegate<MapEntry<String, Location>?>
   @override
   Widget buildSuggestions(BuildContext context) {
     final results = timeZones.where((tz) => tz.value.name.toLowerCase().contains(query.toLowerCase()) || tz.key.toLowerCase().contains(query.toLowerCase())).toList();
-    return ListView.builder(
+    return Container(color: EditCalendarEventPage.backgroundColor, child: ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
         return ListTile(
@@ -62,6 +63,6 @@ class TimeZoneSearchDelegate extends SearchDelegate<MapEntry<String, Location>?>
           },
         );
       },
-    );
+    ));
   }
 }

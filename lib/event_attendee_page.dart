@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:edit_calendar_event_view/string_extensions.dart';
 import 'package:flutter/material.dart';
+import 'edit_calendar_event_page.dart';
 
 late DeviceCalendarPlugin _deviceCalendarPlugin;
 
@@ -48,6 +49,7 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: EditCalendarEventPage.backgroundColor,
       appBar: AppBar(
         title: Text(_attendee != null
             ? '${'edit_attendee'.localize} ${_attendee!.name}'

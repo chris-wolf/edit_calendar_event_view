@@ -1,6 +1,7 @@
 import 'package:device_calendar/device_calendar.dart';
 import 'package:edit_calendar_event_view/extensions.dart';
 import 'package:flutter/material.dart';
+import 'edit_calendar_event_page.dart';
 
 class CalendarSelectionDialog {
   static Future<Calendar?> showCalendarDialog(
@@ -16,6 +17,7 @@ class CalendarSelectionDialog {
       builder: (BuildContext context) {
         final startIndex = notSetString == null ? 0 : 1;
         return AlertDialog(
+          backgroundColor: EditCalendarEventPage.backgroundColor,
           title: Text(title),
           contentPadding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
           content: SizedBox(

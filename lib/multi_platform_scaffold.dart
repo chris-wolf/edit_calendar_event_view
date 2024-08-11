@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:macos_ui/macos_ui.dart';
 
 import 'common/common.dart';
+import 'edit_calendar_event_page.dart';
 
 class MultiPlatformScaffold extends StatelessWidget {
   final String? title;
@@ -41,7 +42,7 @@ class MultiPlatformScaffold extends StatelessWidget {
               backgroundColor: appBarColor,
               actions: actions,
             ),
-        backgroundColor: backgroundColor,
+        backgroundColor: backgroundColor ?? EditCalendarEventPage.backgroundColor,
         body: Builder(builder: (context) {
           return body!;
         }),

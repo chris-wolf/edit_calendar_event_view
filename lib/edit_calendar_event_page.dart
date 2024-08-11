@@ -36,6 +36,7 @@ enum DatePickerType {
 
 class EditCalendarEventPage extends StatefulWidget {
   static String? currentTimeZone;
+  static Color? backgroundColor;
 
   static Future<dynamic> show(BuildContext context,
       {String? calendarId,
@@ -46,10 +47,10 @@ class EditCalendarEventPage extends StatefulWidget {
       int? startDate,
       int? endDate,
       bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars}) async {
-    if (EditCalendarEventPage.currentTimeZone == null) {
+    if (tz.local == null) {
       tz.initializeTimeZones();
-      currentTimeZone = await FlutterTimezone.getLocalTimezone();
     }
+      currentTimeZone = tz.local?.toString() ?? await FlutterTimezone.getLocalTimezone();
     List<Calendar> calendars = availableCalendars ??
         (await DeviceCalendarPlugin().retrieveCalendars()).data?.toList() ?? [];
     if (eventId != null) {
@@ -220,9 +221,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
   @override
   Widget build(BuildContext context) {
-
-
-    buttonTextColor ??= Theme.of(context).primaryColor;
+    buttonTextColor ??= Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface;
     final title =
         (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false) ? 'view_event' : 'edit_event').localize();
     return PopScope(
@@ -238,7 +237,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             padding: const EdgeInsets.all(5.0),
           ),
           actions: [
-            if (widget.event != null)
+            if (widget.event != null && calendar?.isReadOnly == false)
               Padding(
                 padding: const EdgeInsets.only(right: 20.0),
                 child: IconButton(
@@ -253,7 +252,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
               ),
           ],
           macOsActions: [
-            if (widget.event != null)
+            if (widget.event != null && calendar?.isReadOnly == false)
               ToolBarIconButton(
                   label: 'delete'.localize(),
                   icon: const MacosIcon(
@@ -919,6 +918,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
+            backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
               for (final reminder in defaultAlarmOptions
                   .map((mins) => Reminder(minutes: mins))
@@ -956,6 +956,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
               TextEditingController(text: '10');
           int currentIndex = 0;
           return AlertDialog(
+            backgroundColor: EditCalendarEventPage.backgroundColor,
             title: Text('custom'.localize()),
             content: StatefulBuilder(
               builder: (BuildContext context,
@@ -1011,6 +1012,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
+            backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
               SimpleDialogOption(
                 onPressed: () {
@@ -1270,6 +1272,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
+            backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
               for (final eventStatus in EventStatus.values)
                 SimpleDialogOption(
@@ -1297,6 +1300,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
+            backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
               for (final availability in Availability.values)
                 SimpleDialogOption(
