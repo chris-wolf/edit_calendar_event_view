@@ -34,6 +34,8 @@ enum DatePickerType {
   cupertino
 }
 
+final _deviceCalendarPlugin = DeviceCalendarPlugin(shouldInitTimezone: false);
+
 class EditCalendarEventPage extends StatefulWidget {
   static String? currentTimeZone;
   static Color? backgroundColor;
@@ -47,22 +49,22 @@ class EditCalendarEventPage extends StatefulWidget {
       int? startDate,
       int? endDate,
       bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars}) async {
-    if (tz.local == null) {
+    if (tz.local.toString() == 'UTC') {
       tz.initializeTimeZones();
     }
       currentTimeZone = tz.local?.toString() ?? await FlutterTimezone.getLocalTimezone();
     List<Calendar> calendars = availableCalendars ??
-        (await DeviceCalendarPlugin().retrieveCalendars()).data?.toList() ?? [];
+        (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
     if (eventId != null) {
       if (calendarId != null) {
-        event = (await DeviceCalendarPlugin().retrieveEvents(
+        event = (await _deviceCalendarPlugin.retrieveEvents(
                 calendarId, RetrieveEventsParams(eventIds: [eventId])))
             .data
             ?.firstOrNull();
       }
       if (event == null) {
         for (final cal in calendars) {
-          final events = await DeviceCalendarPlugin().retrieveEvents(
+          final events = await _deviceCalendarPlugin.retrieveEvents(
               cal.id, RetrieveEventsParams(eventIds: [eventId]));
           final evnt = events.data?.firstOrNull();
           if (evnt != null) {
@@ -156,6 +158,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   FocusNode locationFocusNode = FocusNode();
   FocusNode websiteFocusNode = FocusNode();
   List<EventColor> eventColors = [];
+  String? colorSourceCalendarId;
+  String? colorsFromCalendarId;
 
   @override
   void initState() {
@@ -193,19 +197,33 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     _descriptionController.text = event.description ?? '';
     _locationController.text = event.location ?? '';
     _websiteController.text = event.url?.toString() ?? '';
+    if (event.color != null) {
+      colorSourceCalendarId = event.calendarId;
+    }
     loadEventColors();
     if (calendar?.isReadOnly ?? false) {
       Future.delayed(const Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('read_only_event'.localize()), duration: const Duration(seconds: 60))));
     }
   }
 
-  void loadEventColors() {
-    if (calendar != null) {
-      DeviceCalendarPlugin().retrieveEventColors(calendar!).then((eventColors) {
+  void loadEventColors() async {
+    final currCalendar = calendar;
+    colorsFromCalendarId = null;
+    if (currCalendar != null) {
+      List<EventColor> eventColors = (await _deviceCalendarPlugin.retrieveEventColors(currCalendar)) ?? [];
+      if (eventColors.isEmpty){
+        final allCalendars = (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
+        for (final cal in allCalendars) {
+          eventColors = (await _deviceCalendarPlugin.retrieveEventColors(cal)) ?? [];
+          if (eventColors.isNotEmpty) {
+            colorsFromCalendarId = cal.id;
+            break;
+          }
+        }
+      }
         setState(() {
           this.eventColors = eventColors ?? [];
         });
-      });
     }
   }
 
@@ -299,7 +317,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   Future<void> deleteEvent(BuildContext context) async {
     final event = widget.event;
     if (event != null) {
-      DeviceCalendarPlugin().deleteEvent(event.calendarId, event.eventId);
+      _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
       Navigator.pop(
           context, (resultType: ResultType.deleted, eventId: event.eventId));
     }
@@ -580,7 +598,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                             ),
                                             onTap: () async {
                                               final calendars = widget.availableCalendars ??
-                                                  (await DeviceCalendarPlugin()
+                                                  (await _deviceCalendarPlugin
                                                               .retrieveCalendars())
                                                           .data
                                                           ?.where((element) =>
@@ -600,13 +618,13 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                           (element) =>
                                                               element.id ==
                                                               calendar?.id));
-                                              if (result?.id != null) {
+                                              if (result?.id != null && result?.id != event.calendarId) {
+                                                event.updateEventColor(null);
                                                 setState(() {
                                                   calendar = result;
                                                   event.calendarId = result?.id;
-                                                  event.updateEventColor(null);
-                                                  loadEventColors();
                                                 });
+                                                loadEventColors();
                                               }
                                             },
                                           ),
@@ -654,6 +672,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context, selectedColor: event.color == null ? null : Color(event.color!), canReset: true);
                                               final eventColor = eventColors.firstWhereOrNull((eventColor) => Color(eventColor.color) == color);
                                               if (eventColor != null || color == Colors.transparent) {
+                                                  colorSourceCalendarId = colorsFromCalendarId ?? event.calendarId;
                                                 setState(()  {
                                                    event.updateEventColor(eventColor);
                                                 });
@@ -1184,9 +1203,16 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.description = _descriptionController.text;
     event.location = _locationController.text;
     event.url = parseUrl(_websiteController.text.trim());
+    if (colorSourceCalendarId != null && colorSourceCalendarId != event.calendarId) { // if event color is set by other calendar, i need to save it with the color source calendar and then change calendarId, else storign of event color for local calendars doenst work
+      final calendarId = event.calendarId;
+      event.calendarId = colorSourceCalendarId;
+      final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
+      event.eventId = eventId?.data;
+      event.calendarId = calendarId;
+      event.updateEventColor(null);
+    }
 
-
-    final eventId = await DeviceCalendarPlugin().createOrUpdateEvent(event);
+    final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
     if (context.mounted) {
       Navigator.pop(
           context, (resultType: ResultType.saved, eventId: eventId?.data));
