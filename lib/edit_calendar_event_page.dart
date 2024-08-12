@@ -1166,7 +1166,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     unFocus();
     final newDate = await showDatePicker(
       context: context,
-      initialDate: endDate(),
+      initialDate: startDate(),
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now().add(const Duration(days: 3650)),
       builder: (context, child) {
