@@ -1,12 +1,11 @@
 <component name="libraryTable">
   <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
     <CLASSES>
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-2.1.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/appkit_ui_element_colors-1.0.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/macos_window_utils-1.4.0" />
       <root url="file://$USER_HOME$/.pub-cache/git/device_calendar-cd0c652380fcc5767ca5c5acdfe371479ed3b464" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/macos_ui-2.0.5" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-1.0.8" />
       <root url="file://$PROJECT_DIR$" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/macos_ui-2.0.7" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

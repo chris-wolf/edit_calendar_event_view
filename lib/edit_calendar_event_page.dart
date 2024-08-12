@@ -669,7 +669,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               ],
                                             ),
                                             onTap: () async {
-                                              final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context, selectedColor: event.color == null ? null : Color(event.color!), canReset: true);
+                                              final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context, selectedColor: event.color == null ? null : Color(event.color!), canReset: colorsFromCalendarId == null);
                                               final eventColor = eventColors.firstWhereOrNull((eventColor) => Color(eventColor.color) == color);
                                               if (eventColor != null || color == Colors.transparent) {
                                                   colorSourceCalendarId = colorsFromCalendarId ?? event.calendarId;
