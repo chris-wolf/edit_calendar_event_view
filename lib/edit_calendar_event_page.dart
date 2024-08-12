@@ -411,7 +411,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         leading: const Icon(Icons.access_time_rounded),
                                         title: Row(
                                           children: <Widget>[
-                                            Expanded(child: Text('all_day'.localize())),
+                                            Expanded(child: Text('all_day'.localize(),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(color: buttonTextColor),)),
                                             Switch.adaptive(
                                               value: allDay(),
                                               onChanged: (bool value) {
@@ -1223,7 +1227,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (recurrenceRule == null) {
       return "repeat_once".localize();
     }
-
     final StringBuffer buffer = StringBuffer();
     final interval = recurrenceRule.interval ?? 1;
 
@@ -1231,6 +1234,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       buffer.write("${'every'.localize()} $interval");
     } else {
       buffer.write('${'every'.localize()}');
+    }
+
+    // if  reminder has only frequency set
+    if (recurrenceRule.until == null && recurrenceRule.count == null && recurrenceRule.interval == null && recurrenceRule.weekStart == null && recurrenceRule.bySeconds.isEmpty && recurrenceRule.byMinutes.isEmpty && recurrenceRule.byHours.isEmpty && recurrenceRule.byWeekDays.isEmpty && recurrenceRule.byMonthDays.isEmpty && recurrenceRule.byYearDays.isEmpty && recurrenceRule.byWeeks.isEmpty && recurrenceRule.byMonths.isEmpty && recurrenceRule.bySeconds.isEmpty) {
+      return recurrenceRule.frequency.toString().toLowerCase().capitalize().localize();
     }
     switch (recurrenceRule.frequency) {
       case Frequency.daily:
