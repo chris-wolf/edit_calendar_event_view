@@ -773,10 +773,30 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                   final start = event.start;
                                                   final end = event.end;
                                                   if (start != null) {
-                                                    event.start = TZDateTime.from(start, timezone.value);
+                                                    event.start = TZDateTime(
+                                                      timezone.value,
+                                                      start.year,
+                                                      start.month,
+                                                      start.day,
+                                                      start.hour,
+                                                      start.minute,
+                                                      start.second,
+                                                      start.millisecond,
+                                                      start.microsecond,
+                                                    );
                                                   }
                                                   if (end != null) {
-                                                    event.end = TZDateTime.from(end, timezone.value);
+                                                    event.end = TZDateTime(
+                                                      timezone.value,
+                                                      end.year,
+                                                      end.month,
+                                                      end.day,
+                                                      end.hour,
+                                                      end.minute,
+                                                      end.second,
+                                                      end.millisecond,
+                                                      end.microsecond,
+                                                    );
                                                   }
                                                 });
                                               }
