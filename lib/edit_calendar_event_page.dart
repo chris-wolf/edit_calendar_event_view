@@ -177,6 +177,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     calendar = widget.calendar;
     if (widget.event != null) {
       event = widget.event!;
+      // make sure start and end hafve the same timezone
+      event.end = tz.TZDateTime.from(event.end ?? DateTime.now().add(Duration(hours: 1)), event.start?.location ?? tz.local);
     } else {
       event = Event(widget.calendar?.id,
           start: TZDateTime.from(DateTime.now(), tz.local),
@@ -244,7 +246,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   TZDateTime epochMillisToTZDateTime(int epochMillis) {
     // Initialize timezone data; required if you haven't done it elsewhere in your app.
     // Convert epoch milliseconds to a DateTime object.
-    return tz.TZDateTime.fromMillisecondsSinceEpoch(event.location == null ? tz.local : tz.getLocation(event.location!), epochMillis);
+    return tz.TZDateTime.fromMillisecondsSinceEpoch(event.start?.location ?? tz.local, epochMillis);
   }
 
   Color? buttonTextColor;
