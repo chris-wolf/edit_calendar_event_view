@@ -48,7 +48,7 @@ class EditCalendarEventPage extends StatefulWidget {
       String? description,
       int? startDate,
       int? endDate,
-      bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars}) async {
+      bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars, EventColor? eventColor, List<Reminder>? reminders}) async {
     if (tz.local.toString() == 'UTC') {
       tz.initializeTimeZones();
     }
@@ -103,7 +103,9 @@ class EditCalendarEventPage extends StatefulWidget {
       endDate: endDate,
       allDay: allDay,
       datePickerType: datePickerType ?? DatePickerType.material,
-      availableCalendars: calendars.where((calendar) => calendar.isReadOnly == false).toList()
+      availableCalendars: calendars.where((calendar) => calendar.isReadOnly == false).toList(),
+      eventColor: eventColor,
+      reminders: reminders
     );
     if (MacosTheme.maybeOf(context) != null) {
       return MultiPlatformDialog.show(context, page,
@@ -125,6 +127,8 @@ class EditCalendarEventPage extends StatefulWidget {
   final bool? allDay;
   final DatePickerType datePickerType;
   final List<Calendar>? availableCalendars;
+  final EventColor? eventColor;
+  final List<Reminder>? reminders;
 
   const EditCalendarEventPage(
       {super.key,
@@ -135,7 +139,9 @@ class EditCalendarEventPage extends StatefulWidget {
       this.startDate,
       this.endDate,
       this.allDay,
-      required this.datePickerType, this.availableCalendars
+      required this.datePickerType, this.availableCalendars,
+        this.eventColor,
+        this.reminders
       });
 
   @override
@@ -164,8 +170,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   @override
   void initState() {
     super.initState();
-    tz.setLocalLocation(
-        tz.getLocation(EditCalendarEventPage.currentTimeZone ?? 'UTC'));
+     if (tz.local == null) {
+      tz.setLocalLocation(
+          tz.getLocation(EditCalendarEventPage.currentTimeZone ?? 'UTC'));
+    }
     calendar = widget.calendar;
     if (widget.event != null) {
       event = widget.event!;
@@ -192,6 +200,12 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
     if (calendar != null) {
       event.calendarId = calendar?.id;
+    }
+    if (widget.reminders != null) {
+      event.reminders = widget.reminders;
+    }
+    if (widget.eventColor != null) {
+      event.updateEventColor(widget.eventColor);
     }
     _titleController.text = event.title ?? '';
     _descriptionController.text = event.description ?? '';
@@ -230,9 +244,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   TZDateTime epochMillisToTZDateTime(int epochMillis) {
     // Initialize timezone data; required if you haven't done it elsewhere in your app.
     // Convert epoch milliseconds to a DateTime object.
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(epochMillis);
-    // Convert DateTime to TZDateTime in the local timezone.
-    return tz.TZDateTime.from(dateTime, tz.local);
+    return tz.TZDateTime.fromMillisecondsSinceEpoch(event.location == null ? tz.local : tz.getLocation(event.location!), epochMillis);
   }
 
   Color? buttonTextColor;
@@ -324,15 +336,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   DateTime startDate() {
-    return DateTime.fromMillisecondsSinceEpoch(
-        event.start?.millisecondsSinceEpoch ??
-            DateTime.now().millisecondsSinceEpoch);
+    return event.start ?? DateTime.now();
   }
 
   DateTime endDate() {
-    return DateTime.fromMillisecondsSinceEpoch(
-        event.end?.millisecondsSinceEpoch ??
-            startDate().add(const Duration(hours: 1)).millisecondsSinceEpoch);
+    return  event.end ?? startDate().add(const Duration(hours: 1));
   }
 
   bool allDay() {
