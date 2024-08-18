@@ -49,10 +49,7 @@ class EditCalendarEventPage extends StatefulWidget {
       int? startDate,
       int? endDate,
       bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars, EventColor? eventColor, List<Reminder>? reminders}) async {
-    if (tz.local.toString() == 'UTC') {
-      tz.initializeTimeZones();
-    }
-      currentTimeZone = tz.local?.toString() ?? await FlutterTimezone.getLocalTimezone();
+      currentTimeZone = tz.local.toString();
     List<Calendar> calendars = availableCalendars ??
         (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
     if (eventId != null) {
