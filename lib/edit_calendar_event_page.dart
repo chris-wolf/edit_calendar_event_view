@@ -247,10 +247,15 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   Color? buttonTextColor;
+  Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
     buttonTextColor ??= Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface;
+    iconColor ??= Theme.of(context)
+        .colorScheme
+        .onSurface
+        .withOpacity(0.64);
     final title =
         (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false) ? 'view_event' : 'edit_event').localize();
     return PopScope(
@@ -261,17 +266,18 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       child: MultiPlatformScaffold(
           title: title,
           macOsLeading: MacosIconButton(
-            icon: const Icon(Icons.close, color: Color(0xff808080)),
+            icon:  Icon(Icons.close, color: Color(0xff808080)),
             onPressed: () => Navigator.pop(context),
             padding: const EdgeInsets.all(5.0),
           ),
           actions: [
             if (widget.event != null && calendar?.isReadOnly == false)
               Padding(
-                padding: const EdgeInsets.only(right: 20.0),
+                padding:  EdgeInsets.only(right: 20.0),
                 child: IconButton(
-                  icon: const Icon(
+                  icon:  Icon(
                     Icons.delete,
+                    color: iconColor,
                   ),
                   tooltip: 'delete'.localize(),
                   onPressed: () async {
@@ -317,7 +323,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
               await confirmPress(context);
             },
             backgroundColor: Colors.green,
-            child: const Icon(
+            child:  Icon(
               Icons.check,
               color: Colors.white,
             ),
@@ -415,7 +421,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ListTile(
-                                        leading: const Icon(Icons.access_time_rounded),
+                                        leading:  Icon(Icons.access_time_rounded,
+                                          color: iconColor,),
                                         title: Row(
                                           children: <Widget>[
                                             Expanded(child: Text('all_day'.localize(),
@@ -548,7 +555,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         },
                                       ),
                                     ListTile(
-                                        leading: const Icon(Icons.refresh),
+                                        leading:  Icon(Icons.refresh,
+                                            color: iconColor),
                                         title: Text(
                                             event.recurrenceRule == null
                                                 ? 'repeat_once'.localize()
@@ -572,9 +580,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   children: [
                                     Row(
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.calendar_month),
+                                          child: Icon(Icons.calendar_month,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: ListTile(
@@ -647,9 +656,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     if(eventColors.isNotEmpty)
                                     Row(
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.color_lens_outlined),
+                                          child: Icon(Icons.color_lens_outlined,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: ListTile(
@@ -697,9 +707,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.alarm),
+                                          child: Icon(Icons.alarm,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: Column(
@@ -753,9 +764,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
-                                          child: Icon(Icons.public),
+                                          child: Icon(Icons.public,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: ListTile(
@@ -808,9 +820,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
-                                          child: Icon(Icons.location_on_outlined),
+                                          child: Icon(Icons.location_on_outlined,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: TextFormField(
@@ -833,9 +846,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
-                                          child: Icon(Icons.web_sharp),
+                                          child: Icon(Icons.web_sharp,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: TextFormField(
@@ -858,9 +872,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
-                                          child: Icon(Icons.question_mark),
+                                          child: Icon(Icons.question_mark,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: ListTile(
@@ -881,9 +896,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
-                                          child: Icon(Icons.timelapse),
+                                          child: Icon(Icons.timelapse,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: ListTile(
@@ -903,9 +919,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Padding(
+                                         Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.group),
+                                          child: Icon(Icons.group,
+                                              color: iconColor),
                                         ),
                                         Expanded(
                                           child: Column(
