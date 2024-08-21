@@ -42,7 +42,6 @@ class EditCalendarEventPage extends StatefulWidget {
 
   static Future<dynamic> show(BuildContext context,
       {String? calendarId,
-        String? eventId,
         Event? event,
       String? title,
       String? description,
@@ -52,25 +51,6 @@ class EditCalendarEventPage extends StatefulWidget {
       currentTimeZone = tz.local.toString();
     List<Calendar> calendars = availableCalendars ??
         (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
-    if (eventId != null) {
-      if (calendarId != null) {
-        event = (await _deviceCalendarPlugin.retrieveEvents(
-                calendarId, RetrieveEventsParams(eventIds: [eventId])))
-            .data
-            ?.firstOrNull();
-      }
-      if (event == null) {
-        for (final cal in calendars) {
-          final events = await _deviceCalendarPlugin.retrieveEvents(
-              cal.id, RetrieveEventsParams(eventIds: [eventId]));
-          final evnt = events.data?.firstOrNull();
-          if (evnt != null) {
-            event = evnt;
-            break;
-          }
-        }
-      }
-    }
     Calendar? calendar;
 
     if (calendarId != null) {
@@ -334,9 +314,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   Future<void> deleteEvent(BuildContext context) async {
     final event = widget.event;
     if (event != null) {
-      _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
+      await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
       Navigator.pop(
-          context, (resultType: ResultType.deleted, eventId: event.eventId));
+          context, (resultType: ResultType.deleted, event: event));
     }
   }
 
@@ -1261,9 +1241,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
 
     final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
+    event.eventId = eventId?.data;
     if (context.mounted) {
       Navigator.pop(
-          context, (resultType: ResultType.saved, eventId: eventId?.data));
+          context, (resultType: ResultType.saved, event: event));
     }
   }
 
