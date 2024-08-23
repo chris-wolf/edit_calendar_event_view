@@ -65,7 +65,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
       appBar: AppBar(
         title: Text('custom_recurrency_rule'.localize()),
       ),
-      body: ListView(
+      body: Center(child:Container(width: 600, child:ListView(
           padding: EdgeInsets.all(24),
           children: [
             Text('${'repeat_every'.localize()}:',
@@ -90,7 +90,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
             _buildEndsPicker(),
             const SizedBox(height: 48.0,)
           ],
-      ),
+      ))),
         floatingActionButton: FloatingActionButton(
           tooltip: 'save'.localize(),
           onPressed: () async {

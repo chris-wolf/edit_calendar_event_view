@@ -278,7 +278,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   },
                   showLabel: false),
           ],
-          body: Stack(
+          body:
+          Stack(
             children: [
               content(),
               if (MacosTheme.maybeOf(context) != null)
@@ -344,8 +345,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         },
         focusNode: contentFocusNode,
         child: Builder(builder: (context) {
-          return Container(
-              constraints: const BoxConstraints.expand(),
+          return Center(child: Container(
+            alignment: Alignment.center,
+              width: 500,
               child:  SingleChildScrollView(
                     child: AbsorbPointer(
                       absorbing: calendar?.isReadOnly ?? false,
@@ -493,7 +495,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                     setStartTime(context);
                                                   },
                                                   child: Text(
-                                                      DateFormat('h:mm a')
+                                                      DateFormat.jm()
                                                           .format(startDate()),
                                                       style:
                                                       const TextStyle(fontSize: 16))),
@@ -525,7 +527,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                   setEndTime(context);
                                                 },
                                                 child: Text(
-                                                    DateFormat('h:mm a').format(endDate()),
+                                                    DateFormat.jm().format(endDate()),
                                                     style: const TextStyle(fontSize: 16)),
                                               ),
                                           ],
@@ -954,7 +956,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                       ),
                     ),
 
-              ));
+              )));
         }));
   }
 
@@ -1008,8 +1010,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             content: StatefulBuilder(
               builder: (BuildContext context,
                   void Function(void Function()) setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
+                return SingleChildScrollView(
+                  child: SizedBox(height: 300,
+                  child: Column(
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     TextField(
                       focusNode: FocusNode()..requestFocus(),
@@ -1028,7 +1032,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                         },
                       ),
                   ],
-                );
+                )));
               },
             ),
             actions: <Widget>[

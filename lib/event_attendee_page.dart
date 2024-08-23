@@ -55,7 +55,7 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
             ? '${'edit_attendee'.localize} ${_attendee!.name}'
             : 'add_an_attendee'.localize()),
       ),
-      body: Column(
+      body: Center(child: SizedBox(width: 600, child: Column(
         children: [
           Form(
             key: _formKey,
@@ -132,7 +132,7 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
             ),
           ),
         ],
-      ),
+      ))),
         floatingActionButton: FloatingActionButton(
           tooltip: 'save'.localize(),
           onPressed: () async {

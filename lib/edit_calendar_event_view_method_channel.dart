@@ -10,7 +10,6 @@ import 'edit_calendar_event_view_platform_interface.dart';
 enum ResultType {
   saved,
   deleted,
-  unknown,
   canceled
 }
 
