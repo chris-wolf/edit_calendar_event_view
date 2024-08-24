@@ -475,14 +475,16 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         title: Row(
                                           children: [
                                             const SizedBox(width: 26),
-                                        Expanded(child: TextButton(
+                                       Expanded(child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: TextButton(
                                                 onPressed: () async {
                                                   await startDatePicker(context);
                                                 },
                                                 child: Text(
                                                     DateFormat('EEE, MMM d, yyyy')
                                                         .format(startDate()),
-                                                    style: const TextStyle(fontSize: 16)))),
+                                                    style: const TextStyle(fontSize: 16))))),
                                             if (allDay() == false)
                                               TextButton(
                                                   onPressed: () {
@@ -504,17 +506,15 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         title: Row(
                                           children: [
                                             const SizedBox(width: 26),
-                                            TextButton(
+                                            Expanded(child: Align(
+                                                alignment: Alignment.centerLeft, child: TextButton(
                                                 onPressed: () async {
                                                   await endDatePicker(context);
                                                 },
                                                 child: Text(
                                                     DateFormat('EEE, MMM d, yyyy')
                                                         .format(endDate()),
-                                                    style: const TextStyle(fontSize: 16))),
-                                            const Expanded(
-                                              child: SizedBox(),
-                                            ),
+                                                    style: const TextStyle(fontSize: 16))))),
                                             if (allDay() == false)
                                               TextButton(
                                                 onPressed: () {
