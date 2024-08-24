@@ -345,11 +345,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         },
         focusNode: contentFocusNode,
         child: Builder(builder: (context) {
-          return Center(child: Container(
-            alignment: Alignment.center,
-              width: 500,
-              child:  SingleChildScrollView(
-                    child: AbsorbPointer(
+          return SingleChildScrollView(child: 
+            Center(child: SizedBox(width: 500, child:  AbsorbPointer(
                       absorbing: calendar?.isReadOnly ?? false,
                       child: Padding(
                         padding:
@@ -478,17 +475,14 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         title: Row(
                                           children: [
                                             const SizedBox(width: 26),
-                                            TextButton(
+                                        Expanded(child: TextButton(
                                                 onPressed: () async {
                                                   await startDatePicker(context);
                                                 },
                                                 child: Text(
                                                     DateFormat('EEE, MMM d, yyyy')
                                                         .format(startDate()),
-                                                    style: const TextStyle(fontSize: 16))),
-                                            const Expanded(
-                                              child: SizedBox(),
-                                            ),
+                                                    style: const TextStyle(fontSize: 16)))),
                                             if (allDay() == false)
                                               TextButton(
                                                   onPressed: () {
