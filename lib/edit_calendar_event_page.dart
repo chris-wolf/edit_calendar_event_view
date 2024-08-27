@@ -1004,8 +1004,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             content: StatefulBuilder(
               builder: (BuildContext context,
                   void Function(void Function()) setState) {
-                return SingleChildScrollView(
-                  child: SizedBox(height: 300,
+                return SizedBox(
+                    height: 280,
+                  child: SingleChildScrollView(
                   child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
