@@ -20,6 +20,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'calendar_selection_dialog.dart';
 import 'common/constants.dart';
@@ -189,7 +190,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     _titleController.text = event.title ?? '';
     _descriptionController.text = event.description ?? '';
     _locationController.text = event.location ?? '';
-    _websiteController.text = event.url?.toString() ?? '';
+    _websiteController.text = event.url?.data?.contentText ?? '';
     if (event.color != null) {
       colorSourceCalendarId = event.calendarId;
     }
@@ -739,8 +740,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   children: [
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                         Padding(
+                                      children: [Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
                                           child: Icon(Icons.public,
                                               color: iconColor),
@@ -822,11 +822,19 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                         Padding(
+                                        InkWell(
+                                          onTap: event?.url?.data?.contentText == null ? null : () async {
+                                            final url = Uri.parse(event?.url?.data?.contentText ?? '');
+                                            if (url != null) {
+                                              if (!await launchUrl(url)) {
+                                                throw Exception('Could not launch $url');
+                                              }
+                                            }
+                                          }, child: Padding(
                                           padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
                                           child: Icon(Icons.web_sharp,
                                               color: iconColor),
-                                        ),
+                                        )),
                                         Expanded(
                                           child: TextFormField(
                                             focusNode: websiteFocusNode,
@@ -1226,9 +1234,38 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   Future confirmPress(BuildContext context) async {
+    if (event.status == EventStatus.Canceled) {
+      final cancel = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('confirm_cancellation'.localize()),
+            content: Text('confirm_cancellation_text'.localize()),
+            actions: <Widget>[
+              TextButton(
+                child: Text('keep_event'.localize()),
+                onPressed: () {
+                  Navigator.of(context).pop(false); // Close the dialog
+                },
+              ),
+              TextButton(
+                child: Text('delete'.localize()),
+                onPressed: () {
+                  Navigator.of(context).pop(true); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (cancel != true) {
+        event.status = EventStatus.Tentative;
+      }
+    }
     event.title = _titleController.text;
     event.description = _descriptionController.text;
     event.location = _locationController.text;
+    
     event.url = parseUrl(_websiteController.text.trim());
     if (colorSourceCalendarId != null && colorSourceCalendarId != event.calendarId) { // if event color is set by other calendar, i need to save it with the color source calendar and then change calendarId, else storign of event color for local calendars doenst work
       final calendarId = event.calendarId;
@@ -1243,7 +1280,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.eventId = eventId?.data;
     if (context.mounted) {
       Navigator.pop(
-          context, (resultType: ResultType.saved, event: event));
+          context, (resultType: event.status == EventStatus.Canceled ? ResultType.deleted : ResultType.saved, event: event));
     }
   }
 
@@ -1360,7 +1397,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
           return SimpleDialog(
             backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
-              for (final availability in Availability.values)
+              for (final availability in Availability.values.whereNot((avail) => avail == Availability.Unavailable)) // Unavailable doesnt do anything for android
                 SimpleDialogOption(
                   onPressed: () {
                     Navigator.pop(context, availability);
@@ -1398,11 +1435,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
     // Attempt to parse the URL and catch any errors
     try {
-      Uri? uri = Uri.tryParse(url);
+      Uri? uri = Uri.dataFromString(url);
       // Additional validation to ensure the URI has a scheme and host
-      if (uri != null && uri.hasScheme && uri.hasAuthority) {
         return uri;
-      }
     } catch (e) {
       // Handle any exceptions (optional logging)
       debugPrint('Error parsing URL: $e');
