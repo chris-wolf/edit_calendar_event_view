@@ -108,26 +108,6 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
                         .toList(),
                   ),
                 ),
-                Visibility(
-                  visible: Platform.isAndroid,
-                  child: ListTile(
-                    leading:  Text('attendee_status'.localize()),
-                    trailing: DropdownButton<AndroidAttendanceStatus>(
-                      onChanged: (value) {
-                        setState(() {
-                          _status = value as AndroidAttendanceStatus;
-                        });
-                      },
-                      value: _status,
-                      items: AndroidAttendanceStatus.values
-                          .map((status) => DropdownMenuItem(
-                                value: status,
-                                child: Text(status.enumToString.toUpperCase().localize()),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                )
               ],
             ),
           ),

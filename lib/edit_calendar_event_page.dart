@@ -911,34 +911,80 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         Expanded(
                                           child: Column(
                                             children: [
-                                              for (final attendee
-                                                  in event.attendees ?? [])
+                                              for (final Attendee attendee
+                                                  in event.attendees?.nonNulls ?? [])
                                                 ListTile(
-                                                  title: Text('${attendee.name} (${Platform.isAndroid ? (attendee.androidAttendeeDetails?.rolee.enumToString.toUpperCase() ?? 'NONE').localize() : (attendee.iosAttendeeDetails?.IosAttendanceStatus.enumToString ?? 'NONE').localize() })'),
-                                                  subtitle: Text(attendee.emailAddress),
-                                                  trailing: IconButton(
+                                                  title: Text('${attendee.name} (${attendee.emailAddress})'),
+                                                  subtitle: Text(() {
+                                                    StringBuffer buffer = StringBuffer();
+                                                    if ((attendee.role ??
+                                                        AttendeeRole.None) !=
+                                                        AttendeeRole.None) {
+                                                      buffer.write(
+                                                          attendee.role!
+                                                              .enumToString);
+                                                      buffer.write(' ');
+                                                    }
+                                                    if (Platform.isAndroid) {
+                                                      if ((attendee
+                                                          .androidAttendeeDetails
+                                                          ?.attendanceStatus ??
+                                                          AndroidAttendanceStatus
+                                                              .None) !=
+                                                          AndroidAttendanceStatus
+                                                              .None) {
+                                                        buffer.write(
+                                                            '(${(attendee
+                                                                .androidAttendeeDetails
+                                                                ?.attendanceStatus ??
+                                                                AndroidAttendanceStatus
+                                                                    .None)
+                                                                .enumToString})');
+                                                      }
+                                                    }
+                                                    if (Platform.isIOS) {
+                                                      if ((attendee
+                                                          .iosAttendeeDetails
+                                                          ?.attendanceStatus ??
+                                                          IosAttendanceStatus
+                                                              .Unknown) !=
+                                                          IosAttendanceStatus
+                                                              .Unknown) {
+                                                        buffer.write(
+                                                            '(${(attendee
+                                                                .iosAttendeeDetails
+                                                                ?.attendanceStatus ??
+                                                                IosAttendanceStatus
+                                                                    .Unknown)
+                                                                .enumToString})');
+                                                      }
+                                                    }
+                                                    return buffer.toString()
+                                                        .trim();
+                                                  }(),),
+                                                    trailing: IconButton(
                                                     icon: Icon(
-                                                      Icons.close_rounded,
-                                                      color: buttonTextColor,
+                                                    Icons.close_rounded,
+                                                    color: buttonTextColor,
                                                     ),
                                                     onPressed: () {
-                                                      List<Attendee> newAttendees = [
-                                                        ...(event.attendees?.nonNulls ??
-                                                            [])
-                                                      ];
-                                                      newAttendees.remove(attendee);
-                                                      setState(() {
-                                                        event.attendees = newAttendees;
-                                                      });
+                                                    List<Attendee> newAttendees = [
+                                                    ...(event.attendees?.nonNulls ??
+                                                    [])
+                                                    ];
+                                                    newAttendees.remove(attendee);
+                                                    setState(() {
+                                                    event.attendees = newAttendees;
+                                                    });
                                                     },
-                                                  ),
-                                                ),
-                                              ListTile(
-                                                title: Text(
-                                                  'add_attendee'.localize(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleMedium
+                                                    ),
+                                                    ),
+                                                    ListTile(
+                                                    title: Text(
+                                                    'add_attendee'.localize(),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium
                                                       ?.copyWith(color: buttonTextColor),
                                                 ),
                                                 onTap: () async {
@@ -1428,6 +1474,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   Uri? parseUrl(String url) {
+    if (url.isEmpty) {
+      return null;
+    }
     // Add a default scheme if none is present
     if (!url.startsWith(RegExp(r'http[s]?://'))) {
       url = 'https://$url';
