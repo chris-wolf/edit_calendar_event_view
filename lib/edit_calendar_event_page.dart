@@ -1180,7 +1180,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
           event.end = event.end?.add(Duration(
               hours: time.hour - endDate().hour,
               minutes: time.minute - endDate().minute));
-          if (endDate().isBefore(startDate())) {
+          if (endDate().isBeforeOrSame(startDate())) {
             event.start = event.end?.subtract(Duration(hours: 1));
           }
         });
@@ -1188,20 +1188,41 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     });
   }
 
-  void setStartTime(BuildContext context) {
+  void setStartTime(BuildContext context) async {
+    final time = await
     showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(startDate()),
-    ).then((time) {
+    );
       if (time != null) {
+        final duration = event.end?.difference(event.start ?? DateTime.now());
         setState(() {
-          event.start = event.start?.add(Duration(
+          final newDateTime = event.start?.add(Duration(
               hours: time.hour - startDate().hour,
               minutes: time.minute - startDate().minute));
-          if (startDate().isAfter(endDate())) {
-            event.end = event.start?.add(const Duration(hours: 1));
+          if (newDateTime != null) {
+          event.start = newDateTime;
+          if (duration != null && duration.inMinutes > 0) {
+            event.end = event.start?.add(duration);
+            updatedEndDate = event.end;
+          }
           }
         });
+      }
+  }
+
+
+
+  void setStartDate(DateTime newDate, int? hour, int? minutes) {
+    final duration = event.end?.difference(event.start ?? DateTime.now());
+    setState(() {
+      final newDateTime = epochMillisToTZDateTime(newDate
+          .add(Duration(hours: hour ?? 0, minutes: minutes ?? 0))
+          .millisecondsSinceEpoch);
+      event.start = newDateTime;
+      if (duration != null && duration.inMinutes != 0) {
+        event.end = event.start?.add(duration);
+        updatedEndDate = event.end;
       }
     });
   }
@@ -1229,8 +1250,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       event.end = epochMillisToTZDateTime(newDate
           .add(Duration(hours: hour ?? 0, minutes: minutes ?? 0))
           .millisecondsSinceEpoch);
-      if (endDate().isBefore(startDate())) {
-        event.start = event.end?.add(const Duration(hours: 1));
+      if (endDate().isBeforeOrSame(startDate())) {
+        event.start = event.end?.subtract(const Duration(hours: 1));
         updatedStartDate = event.start;
       }
     });
@@ -1253,18 +1274,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (newDate != null) {
       setStartDate(newDate, hour, minutes);
     }
-  }
-
-  void setStartDate(DateTime newDate, int? hour, int? minutes) {
-    setState(() {
-      event.start = epochMillisToTZDateTime(newDate
-          .add(Duration(hours: hour ?? 0, minutes: minutes ?? 0))
-          .millisecondsSinceEpoch);
-      if (endDate().isBefore(startDate())) {
-        event.end = event.start?.add(const Duration(hours: 1));
-        updatedEndDate = event.end;
-      }
-    });
   }
 
   TZDateTime? updatedEndDate;
