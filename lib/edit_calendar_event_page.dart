@@ -863,7 +863,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         ),
                                         Expanded(
                                           child: ListTile(
-                                            title: Text(event.status?.enumToString.localize() ?? 'set_status'.localize(),
+                                            title: Text( getEventStatus() == EventStatus.None ? 'set_status'.localize() :  getEventStatus().enumToString.localize(),
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .titleMedium
@@ -1474,6 +1474,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
   String alarmTitle(Reminder reminder) {
     return reminder.title();
+  }
+
+  EventStatus getEventStatus() {
+    return event.status?? EventStatus.None;
   }
 
 
