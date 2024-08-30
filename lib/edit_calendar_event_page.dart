@@ -14,11 +14,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -334,17 +332,26 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     return event.allDay ?? false;
   }
   FocusNode contentFocusNode = FocusNode();
+  bool controlPressed  = false;
 
   Widget content() {
-    return RawKeyboardListener(
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent) {
-            if (event.logicalKey == LogicalKeyboardKey.enter) {
-                confirmPress(context);
+    return KeyboardListener(
+        focusNode: contentFocusNode,
+        onKeyEvent: (event) {
+          if (event is KeyDownEvent) {
+            switch(event.logicalKey) {
+              case LogicalKeyboardKey.escape:
+                Navigator.pop(context);
+              case LogicalKeyboardKey.keyS:
+                if (controlPressed) {
+                  confirmPress(context);
+                }
             }
           }
+          if (event.logicalKey == LogicalKeyboardKey.control) {
+            controlPressed = event is KeyDownEvent;
+          }
         },
-        focusNode: contentFocusNode,
         child: Builder(builder: (context) {
           return SingleChildScrollView(child: 
             Center(child: SizedBox(width: 500, child:  AbsorbPointer(

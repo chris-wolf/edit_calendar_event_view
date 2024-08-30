@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 
@@ -21,7 +22,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  String? eventId;
+  Event? event;
   static const supportedLocales = [
     Locale('en'),
     Locale('de'),
@@ -135,8 +136,6 @@ class _MyAppState extends State<MyApp> {
                             case ResultType.deleted:
                               eventId = null;
                               break;
-                            case ResultType.unknown:
-                              break;
                             case ResultType.canceled:
                               break;
                           }
@@ -151,12 +150,10 @@ class _MyAppState extends State<MyApp> {
                         setState(() {
                           switch(result.resultType) {
                             case ResultType.saved:
-                              eventId = result.eventId;
+                              event = result.event;
                               break;
                             case ResultType.deleted:
-                              eventId = null;
-                              break;
-                            case ResultType.unknown:
+                              event = null;
                               break;
                             case ResultType.canceled:
                               break;
