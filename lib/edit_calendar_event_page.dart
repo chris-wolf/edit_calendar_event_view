@@ -1327,7 +1327,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.title = _titleController.text;
     event.description = _descriptionController.text;
     event.location = _locationController.text;
-    
+    EventColor? bufferedEventColor;
     event.url = parseUrl(_websiteController.text.trim());
     if (colorSourceCalendarId != null && colorSourceCalendarId != event.calendarId) { // if event color is set by other calendar, i need to save it with the color source calendar and then change calendarId, else storign of event color for local calendars doenst work
       final calendarId = event.calendarId;
@@ -1335,11 +1335,17 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
       event.eventId = eventId?.data;
       event.calendarId = calendarId;
+      if ((event.color ?? 0) != 0 && (event.colorKey ?? 0) != 0) {
+        bufferedEventColor = EventColor(event.color ?? 0, event.colorKey ?? 0);
+      }
       event.updateEventColor(null);
     }
 
     final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
     event.eventId = eventId?.data;
+    if (bufferedEventColor != null) {
+      event.updateEventColor(bufferedEventColor);
+    }
     if (context.mounted) {
       Navigator.pop(
           context, (resultType: event.status == EventStatus.Canceled ? ResultType.deleted : ResultType.saved, event: event));
