@@ -1352,7 +1352,24 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (interval > 1) {
       buffer.write("${'every'.localize()} $interval");
     } else {
-      buffer.write('${'every'.localize()}');
+      if (
+      recurrenceRule.until == null &&
+          recurrenceRule.count == null &&
+          recurrenceRule.interval == 1 &&
+          recurrenceRule.bySeconds.isEmpty &&
+          recurrenceRule.byMinutes.isEmpty &&
+          recurrenceRule.byHours.isEmpty &&
+          recurrenceRule.byWeekDays.isEmpty &&
+          recurrenceRule.byMonthDays.isEmpty &&
+          recurrenceRule.byYearDays.isEmpty &&
+          recurrenceRule.byWeeks.isEmpty &&
+          recurrenceRule.byMonths.isEmpty &&
+          recurrenceRule.bySetPositions.isEmpty) {
+        return RecurrenceFrequency.fromFrequency(recurrenceRule.frequency).name.localize();
+      }
+       else {
+          buffer.write('${'every'.localize()}');
+      }
     }
 
     // if  reminder has only frequency set

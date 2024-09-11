@@ -11,7 +11,6 @@ enum RecurrenceFrequency {
 
   Frequency toFrequency() {
     switch(this) {
-
       case RecurrenceFrequency.Daily:
         return Frequency.daily;
       case RecurrenceFrequency.Weekly:
@@ -21,6 +20,20 @@ enum RecurrenceFrequency {
       case RecurrenceFrequency.Yearly:
         return Frequency.yearly;
     }
+  }
+
+  static RecurrenceFrequency fromFrequency(Frequency frequency) {
+    switch(frequency) {
+      case Frequency.daily:
+        return RecurrenceFrequency.Daily;
+      case Frequency.weekly:
+        return RecurrenceFrequency.Weekly;
+      case Frequency.monthly:
+        return RecurrenceFrequency.Monthly;
+      case Frequency.yearly:
+        return RecurrenceFrequency.Yearly;
+    }
+    return RecurrenceFrequency.Monthly;
   }
 
   String localize(int? inverval) {
