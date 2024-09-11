@@ -437,11 +437,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         height: 96,
                                         child: Row(
                                           children: [
-                                            Container(
-                                              width: 64,
-                                              alignment: Alignment.center,
-                                              child: Text('${'event_begin'.localize()}:', style: const TextStyle(fontSize: 16),),
-                                            ),
                                             Expanded(
                                               child: CupertinoDatePicker(
                                                   use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
@@ -460,11 +455,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                         height: 96,
                                         child: Row(
                                           children: [
-                                            Container(
-                                              width: 64,
-                                              alignment: Alignment.center,
-                                              child: Text('${'event_end'.localize()}:', style: const TextStyle(fontSize: 16),),
-                                            ),
                                             Expanded(
                                               child: CupertinoDatePicker(
                                                   key: ValueKey((allDay(), updatedEndDate?.hashCode)),
