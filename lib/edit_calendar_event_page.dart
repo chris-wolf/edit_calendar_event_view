@@ -236,7 +236,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         .onSurface
         .withOpacity(0.64);
     final title =
-        (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false) ? 'view_event' : 'edit_event').localize();
+        (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false) ? 'read_only' : 'edit_event').localize();
     return PopScope(
       canPop: true,
       onPopInvoked : (didPop){
