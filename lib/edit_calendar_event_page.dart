@@ -1331,8 +1331,12 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       event.updateEventColor(null);
     }
 
+    final cachedEnd = event.end;
     final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
     event.eventId = eventId?.data;
+    if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
+      event.end = cachedEnd;
+    }
     if (bufferedEventColor != null) {
       event.updateEventColor(bufferedEventColor);
     }
