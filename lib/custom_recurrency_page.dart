@@ -313,17 +313,17 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
               ),
               Expanded(
                 child: ElevatedButton(
-                  child: Text(DateFormat.yMMMMEEEEd().format(endDate ?? DateTime.now())),
+                  child: Text(DateFormat.yMMMMEEEEd().format((endDate ?? widget.eventStartDate ?? DateTime.now()).toUtc())),
                   onPressed: () async {
                     final date = await showDatePicker(
                       context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 3650)),
+                      initialDate: widget.eventStartDate ?? DateTime.now(),
+                      firstDate: widget.eventStartDate ?? DateTime.now(),
+                      lastDate: (widget.eventStartDate ?? DateTime.now()).add(const Duration(days: 3650)),
                     );
                     if (date != null) {
                       setState(() {
-                        endDate = DateTime.utc(date.year, date.month, date.day);
+                        endDate = DateTime.utc(date.year, date.month, date.day, 23, 59, 59, 999);
                         ends = Ends.date;
                       });
                     }
@@ -335,14 +335,14 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
           onChanged: (value) async {
             DateTime? date = endDate ?? await showDatePicker(
                 context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 3650)),
+              initialDate: widget.eventStartDate ?? DateTime.now(),
+              firstDate: widget.eventStartDate ?? DateTime.now(),
+              lastDate: (widget.eventStartDate ?? DateTime.now()).add(const Duration(days: 3650)),
               );
 
             if (date != null) {
               setState(() {
-                endDate = DateTime.utc(date.year, date.month, date.day);
+                endDate = DateTime.utc(date.year, date.month, date.day, 23, 59, 59, 999);
                 ends = Ends.date;
               });
             }

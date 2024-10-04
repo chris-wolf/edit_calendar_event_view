@@ -89,7 +89,8 @@ class EditCalendarEventPage extends StatefulWidget {
     } else {
       return Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => page),
+        MaterialPageRoute(builder: (context) => page,
+        settings: RouteSettings(name: 'EditCalendarEventPage')),
       );
     }
   }
@@ -1192,14 +1193,17 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       initialTime: TimeOfDay.fromDateTime(startDate()),
     );
       if (time != null) {
-        final duration = event.end?.difference(event.start ?? DateTime.now());
+        Duration? duration = event.end?.difference(event.start ?? DateTime.now());
+        if ((duration?.inMinutes ?? 0) <= 0) {
+          duration = const Duration(minutes: 1);
+        }
         setState(() {
           final newDateTime = event.start?.add(Duration(
               hours: time.hour - startDate().hour,
               minutes: time.minute - startDate().minute));
           if (newDateTime != null) {
           event.start = newDateTime;
-          if (duration != null && duration.inMinutes > 0) {
+          if (duration != null) {
             event.end = event.start?.add(duration);
             updatedEndDate = event.end;
           }
@@ -1211,13 +1215,16 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
 
   void setStartDate(DateTime newDate, int? hour, int? minutes) {
-    final duration = event.end?.difference(event.start ?? DateTime.now());
+    Duration? duration = event.end?.difference(event.start ?? DateTime.now());
+    if ((duration?.inMinutes ?? 0) <= 0) {
+      duration = const Duration(minutes: 1);
+    }
     setState(() {
       final newDateTime = epochMillisToTZDateTime(newDate
           .add(Duration(hours: hour ?? 0, minutes: minutes ?? 0))
           .millisecondsSinceEpoch);
       event.start = newDateTime;
-      if (duration != null && duration.inMinutes != 0) {
+      if (duration != null) {
         event.end = event.start?.add(duration);
         updatedEndDate = event.end;
       }
@@ -1330,6 +1337,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       }
       event.updateEventColor(null);
     }
+    if (allDay() && event.start != null && event.end != null) {
+      event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
+      event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day, 23, 59, 59, 999);
+    }
 
     final cachedEnd = event.end;
     final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
@@ -1421,7 +1432,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (recurrenceRule.count != null) {
       buffer.write(" ${sprintf('for_n_events'.localize(), [recurrenceRule.count] )}");
     } else if (recurrenceRule.until != null) {
-      buffer.write(" ${sprintf('until_s'.localize(), [DateFormat.yMMMMEEEEd().format(recurrenceRule.until!)])}");
+      buffer.write(" ${sprintf('until_s'.localize(), [DateFormat.yMMMMEEEEd().format(recurrenceRule.until!.toUtc())])}");
     }
     buffer.write('.');
     return buffer.toString();

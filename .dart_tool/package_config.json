@@ -75,7 +75,7 @@
     },
     {
       "name": "flutter_timezone",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/flutter_timezone-2.1.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/flutter_timezone-3.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -230,6 +230,54 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "url_launcher",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher-6.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "url_launcher_android",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.10",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "url_launcher_ios",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "url_launcher_linux",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "url_launcher_macos",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "url_launcher_platform_interface",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_platform_interface-2.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "url_launcher_web",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_web-2.3.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "url_launcher_windows",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "vector_math",
       "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/vector_math-2.1.4",
       "packageUri": "lib/",
@@ -237,9 +285,15 @@
     },
     {
       "name": "vm_service",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/vm_service-14.2.4",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/vm_service-14.2.5",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "web",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/web-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "edit_calendar_event_view",
@@ -248,10 +302,10 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2024-08-11T23:02:27.723451Z",
+  "generated": "2024-09-14T14:26:41.044404Z",
   "generator": "pub",
-  "generatorVersion": "3.5.0",
+  "generatorVersion": "3.5.3",
   "flutterRoot": "file:///Users/christopherwolf/fvm/versions/stable",
-  "flutterVersion": "3.24.0",
+  "flutterVersion": "3.24.3",
   "pubCache": "file:///Users/christopherwolf/.pub-cache"
 }
