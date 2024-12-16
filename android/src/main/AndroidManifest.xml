@@ -1,3 +1,2 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="dev.cwolf.editCalendarEventView.edit_calendar_event_view">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 </manifest>

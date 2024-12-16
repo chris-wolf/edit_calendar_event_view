@@ -1160,7 +1160,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             builder: (context) => CustomRecurrencePage(event.start)),
       );
     }
-    if (rule?.interval == 0x7FFFFFFFFFFFFFFF) {
+    if (rule == null) { // back pressed
+      return;
+    }
+    if (rule.interval == 0x7FFFFFFFFFFFFFFF) {
       rule = null; // 'once' selected'
     }
     setState(() {
