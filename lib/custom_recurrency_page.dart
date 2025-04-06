@@ -97,9 +97,10 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
              _onSavePressed();
           },
           backgroundColor: Colors.green,
-          child: const Icon(
+          child:  Icon(
             Icons.check,
             color: Colors.white,
+            semanticLabel: 'save'.localize(),
           ),
         )
     );

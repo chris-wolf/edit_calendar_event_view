@@ -119,9 +119,10 @@ class _EventAttendeePageState extends State<EventAttendeePage> {
             saveAttendee();
           },
           backgroundColor: Colors.green,
-          child: const Icon(
+          child: Icon(
             Icons.check,
             color: Colors.white,
+            semanticLabel: 'save'.localize(),
           ),
         )
     );

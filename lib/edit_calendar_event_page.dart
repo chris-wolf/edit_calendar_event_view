@@ -258,6 +258,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   icon:  Icon(
                     Icons.delete,
                     color: iconColor,
+                    semanticLabel: 'delete'.localize(),
                   ),
                   tooltip: 'delete'.localize(),
                   onPressed: () async {
@@ -307,6 +308,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             child:  Icon(
               Icons.check,
               color: Colors.white,
+              semanticLabel: 'save'.localize(),
             ),
           )),
     );
