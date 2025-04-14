@@ -425,6 +425,13 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               onChanged: (bool value) {
                                                 setState(() {
                                                   event.allDay = value;
+                                                  final end = event.end;
+                                                  final start = event.start;
+                                                  if (end != null && start != null) {
+                                                    if (end.day != start.day && end.difference(start).inHours < 10) { // user probably wanted just one day all day event
+                                                      event.end = TZDateTime(start.location, start.year, start.month, start.day, 23, 59);
+                                                    }
+                                                  }
                                                 });
                                               },
                                             ),
@@ -1344,7 +1351,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
     if (allDay() && event.start != null && event.end != null) {
       event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
-      event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day, 23, 59, 59, 999);
+      event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day + 1); // allday enddate is next day mightnight utc
     }
 
     final cachedEnd = event.end;
