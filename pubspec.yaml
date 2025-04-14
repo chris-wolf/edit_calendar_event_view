@@ -13,11 +13,11 @@ dependencies:
   device_calendar:
     git:
       url: https://github.com/chris-wolf/device_calendar.git
-      ref: develop
+      ref: 6c39511
   flutter:
     sdk: flutter
   flutter_timezone: ^3.0.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   macos_ui: ^2.0.7
   plugin_platform_interface: ^2.1.8
   sprintf: ^7.0.0

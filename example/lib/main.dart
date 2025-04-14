@@ -131,10 +131,10 @@ class _MyAppState extends State<MyApp> {
                         setState(() {
                           switch(result.resultType) {
                             case ResultType.saved:
-                              eventId = result.eventId;
+                              event = result.event;
                               break;
                             case ResultType.deleted:
-                              eventId = null;
+                              event = null;
                               break;
                             case ResultType.canceled:
                               break;
@@ -143,10 +143,10 @@ class _MyAppState extends State<MyApp> {
                       },
                       child: const Text('Add event'),
                     ),
-                    if (eventId != null)
+                    if (event != null)
                     ElevatedButton(
                       onPressed: () async {
-                        final result = await EditCalendarEventView.addOrEditCalendarEvent(context, eventId: eventId);
+                        final result = await EditCalendarEventView.addOrEditCalendarEvent(context, eventId: event?.eventId);
                         setState(() {
                           switch(result.resultType) {
                             case ResultType.saved:
@@ -162,7 +162,7 @@ class _MyAppState extends State<MyApp> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
-                        child: Text('Edit event\n$eventId',
+                        child: Text('Edit event\n${event?.eventId}',
                         textAlign: TextAlign.center),
                       ),
                     ),

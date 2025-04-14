@@ -1,19 +1,7 @@
 <component name="libraryTable">
   <library name="Flutter Plugins" type="FlutterPluginsLibraryType">
     <CLASSES>
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/appkit_ui_element_colors-1.0.0" />
-      <root url="file://$USER_HOME$/.pub-cache/git/device_calendar-cd0c652380fcc5767ca5c5acdfe371479ed3b464" />
       <root url="file://$PROJECT_DIR$" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/macos_ui-2.0.7" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher-6.3.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_macos-3.2.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.2" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_linux-3.2.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_web-2.3.3" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_ios-6.3.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-3.0.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/macos_window_utils-1.4.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_android-6.3.10" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

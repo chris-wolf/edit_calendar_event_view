@@ -9,7 +9,7 @@
     },
     {
       "name": "async",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/async-2.12.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/async-2.13.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -39,7 +39,7 @@
     },
     {
       "name": "device_calendar",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/git/device_calendar-cd0c652380fcc5767ca5c5acdfe371479ed3b464/",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/git/device_calendar-0fe813ce6c792d11920d781fb764c240c53c4c71/",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -51,13 +51,13 @@
     },
     {
       "name": "fake_async",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/fake_async-1.3.2",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/fake_async-1.3.3",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
     {
       "name": "flutter",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/packages/flutter",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -69,7 +69,7 @@
     },
     {
       "name": "flutter_test",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/packages/flutter_test",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -81,7 +81,7 @@
     },
     {
       "name": "flutter_web_plugins",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/packages/flutter_web_plugins",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -93,13 +93,13 @@
     },
     {
       "name": "intl",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/intl-0.19.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/intl-0.20.2",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.3"
     },
     {
       "name": "leak_tracker",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/leak_tracker-10.0.8",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/leak_tracker-10.0.9",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -165,13 +165,13 @@
     },
     {
       "name": "rrule",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/rrule-0.2.16",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/rrule-0.2.17",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.1"
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -285,7 +285,7 @@
     },
     {
       "name": "vm_service",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/vm_service-14.3.1",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/vm_service-15.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -302,10 +302,10 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-04-06T10:53:54.352420Z",
+  "generated": "2025-04-14T11:26:57.036049Z",
   "generator": "pub",
-  "generatorVersion": "3.7.2",
-  "flutterRoot": "file:///Users/christopherwolf/fvm/versions/stable",
-  "flutterVersion": "3.29.2",
+  "generatorVersion": "3.8.0-133.0.dev",
+  "flutterRoot": "file:///Users/christopherwolf/fvm/versions/3.29",
+  "flutterVersion": "3.30.0-1.0.pre.428",
   "pubCache": "file:///Users/christopherwolf/.pub-cache"
 }
