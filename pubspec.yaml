@@ -11,9 +11,7 @@ environment:
 dependencies:
   collection: ^1.18.0
   device_calendar:
-    git:
-      url: https://github.com/chris-wolf/device_calendar.git
-      ref: 6c39511
+    path: ../device_calendar
   flutter:
     sdk: flutter
   flutter_timezone: ^3.0.1
@@ -29,14 +27,6 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.1
 
-flutter:
-  plugin:
-    platforms:
-      android:
-        package: dev.cwolf.editCalendarEventView.edit_calendar_event_view
-        pluginClass: EditCalendarEventViewPlugin
-      ios:
-        pluginClass: EditCalendarEventViewPlugin
 
 screenshots:
   - description: 'Edit event view for iOS'

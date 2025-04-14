@@ -1,9 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-
     <application
-        android:label="example"
+        android:label="edit_calendar_event_view_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
