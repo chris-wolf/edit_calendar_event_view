@@ -38,6 +38,7 @@ final _deviceCalendarPlugin = DeviceCalendarPlugin(shouldInitTimezone: false);
 class EditCalendarEventPage extends StatefulWidget {
   static String? currentTimeZone;
   static Color? backgroundColor;
+  static List<Color> iosEventColors = []; // there are no ios event colors by default, if you add colors here you need to handle persisting of these colors for events by yourself
 
   static Future<dynamic> show(BuildContext context,
       {String? calendarId,
@@ -200,6 +201,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   void loadEventColors() async {
+    if (Platform.isAndroid) { // only supported on Android
     final currCalendar = calendar;
     colorsFromCalendarId = null;
     if (currCalendar != null) {
@@ -217,6 +219,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         setState(() {
           this.eventColors = eventColors ?? [];
         });
+    }
+    } else {
+      eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
     }
   }
 
@@ -1015,7 +1020,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         }));
   }
 
-
+   int maxInteger =  0x7FFFFFFFFFFFFFFF;
   void addReminder() async {
     unFocus();
     Reminder? reminder = (await showDialog<Reminder>(
@@ -1040,7 +1045,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 ),
               SimpleDialogOption(
                 onPressed: () {
-                  Navigator.pop(context, Reminder(minutes: 0));
+                  Navigator.pop(context, Reminder(minutes: maxInteger));
                 },
                 padding: const EdgeInsets.symmetric(
                     vertical: 12.0, horizontal: 24.0),
@@ -1052,7 +1057,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (!context.mounted) {
       return;
     }
-    if (reminder?.minutes == 0) {
+    if (reminder?.minutes == maxInteger) {
       reminder = reminder = (await showDialog<Reminder>(
         context: context,
         builder: (BuildContext context) {

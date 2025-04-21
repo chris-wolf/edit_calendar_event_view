@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/christopherwolf/fvm/versions/stable/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/christopherwolf/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/christopherwolf/Development/edit_calendar_event_view/android/app/.cxx/Debug/5j41204o/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/christopherwolf/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/christopherwolf/Development/edit_calendar_event_view/android/app/.cxx/Debug/5j41204o/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

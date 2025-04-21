@@ -111,6 +111,9 @@ extension ReminderExtension on Reminder {
   String title({bool forNotification = false}) {
     String resultString = "";
     int minutes = this.minutes ?? 0;
+    if (minutes == 0) {
+      return 'at_time_of_event'.localize();
+    }
     for (final timeUnit in TimeUnit.values.reversed) {
       final timeUnitMinutes = timeUnit.inMinutes();
       if (minutes >= timeUnitMinutes) {

@@ -1,0 +1,2 @@
+/Users/christopherwolf/Development/edit_calendar_event_view/android/app/.cxx/Debug/5j41204o/x86/CMakeFiles/edit_cache.dir
+/Users/christopherwolf/Development/edit_calendar_event_view/android/app/.cxx/Debug/5j41204o/x86/CMakeFiles/rebuild_cache.dir
