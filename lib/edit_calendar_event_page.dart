@@ -1343,7 +1343,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.location = _locationController.text;
     EventColor? bufferedEventColor;
     event.url = parseUrl(_websiteController.text.trim());
-    if (colorSourceCalendarId != null && colorSourceCalendarId != event.calendarId) { // if event color is set by other calendar, i need to save it with the color source calendar and then change calendarId, else storign of event color for local calendars doenst work
+    if (Platform.isAndroid && colorSourceCalendarId != null && colorSourceCalendarId != event.calendarId) { // if event color is set by other calendar, i need to save it with the color source calendar and then change calendarId, else storign of event color for local calendars doenst work
       final calendarId = event.calendarId;
       event.calendarId = colorSourceCalendarId;
       final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);

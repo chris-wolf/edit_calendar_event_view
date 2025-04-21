@@ -3,51 +3,38 @@ PODS:
     - Flutter
   - devicelocale (0.0.1):
     - Flutter
-  - edit_calendar_event_view (0.0.1):
-    - Flutter
   - Flutter (1.0.0)
-  - flutter_localization (0.0.1):
-    - Flutter
   - flutter_timezone (0.0.1):
     - Flutter
-  - shared_preferences_foundation (0.0.1):
+  - url_launcher_ios (0.0.1):
     - Flutter
-    - FlutterMacOS
 
 DEPENDENCIES:
   - device_calendar (from `.symlinks/plugins/device_calendar/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
-  - edit_calendar_event_view (from `.symlinks/plugins/edit_calendar_event_view/ios`)
   - Flutter (from `Flutter`)
-  - flutter_localization (from `.symlinks/plugins/flutter_localization/ios`)
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
-  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
   device_calendar:
     :path: ".symlinks/plugins/device_calendar/ios"
   devicelocale:
     :path: ".symlinks/plugins/devicelocale/ios"
-  edit_calendar_event_view:
-    :path: ".symlinks/plugins/edit_calendar_event_view/ios"
   Flutter:
     :path: Flutter
-  flutter_localization:
-    :path: ".symlinks/plugins/flutter_localization/ios"
   flutter_timezone:
     :path: ".symlinks/plugins/flutter_timezone/ios"
-  shared_preferences_foundation:
-    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   device_calendar: 9cb33f88a02e19652ec7b8b122ca778f751b1f7b
   devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
-  edit_calendar_event_view: 572b38880cc31477cc6f2780de09f111df08ab88
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_localization: f43b18844a2b3d2c71fd64f04ffd6b1e64dd54d4
   flutter_timezone: ffb07bdad3c6276af8dada0f11978d8a1f8a20bb
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
 PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

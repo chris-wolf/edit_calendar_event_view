@@ -1,4 +1,5 @@
 import 'package:devicelocale/devicelocale.dart';
+import 'package:edit_calendar_event_view/edit_calendar_event_page.dart';
 import 'package:edit_calendar_event_view/edit_calendar_event_view.dart';
 import 'package:edit_calendar_event_view/edit_calendar_event_view_method_channel.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   tz.initializeTimeZones();
+  initializeDateFormatting();
   runApp(const MyApp());
 }
 
@@ -125,7 +127,7 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                        final result = await EditCalendarEventView.addOrEditCalendarEvent(context, title: "exampleTitle");
+                        final result = await EditCalendarEventView.addOrEditCalendarEvent(context, title: "exampleTitle", );
                         setState(() {
                           switch(result.resultType) {
                             case ResultType.saved:
@@ -144,7 +146,7 @@ class _MyAppState extends State<MyApp> {
                     if (event != null)
                     ElevatedButton(
                       onPressed: () async {
-                        final result = await EditCalendarEventView.addOrEditCalendarEvent(context, eventId: event?.eventId);
+                        final result = await EditCalendarEventView.addOrEditCalendarEvent(context, event: event);
                         setState(() {
                           switch(result.resultType) {
                             case ResultType.saved:
