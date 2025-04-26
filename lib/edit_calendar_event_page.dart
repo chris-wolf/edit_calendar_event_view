@@ -215,6 +215,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             break;
           }
         }
+        if (eventColors.isEmpty) { // some devices (like chromebooks) have no google calendars, so also use iosEventColors as fallback
+          eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
+        }
       }
         setState(() {
           this.eventColors = eventColors ?? [];
