@@ -204,7 +204,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (Platform.isAndroid) { // only supported on Android
     final currCalendar = calendar;
     colorsFromCalendarId = null;
-    if (currCalendar != null) {
+    if (currCalendar != null) {`
       List<EventColor> eventColors = (await _deviceCalendarPlugin.retrieveEventColors(currCalendar)) ?? [];
       if (eventColors.isEmpty){
         final allCalendars = (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
@@ -215,15 +215,15 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             break;
           }
         }
-        if (eventColors.isEmpty) { // some devices (like chromebooks) have no google calendars, so also use iosEventColors as fallback
-          eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
-        }
       }
         setState(() {
           this.eventColors = eventColors ?? [];
         });
     }
     } else {
+      eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
+    }
+    if (eventColors.isEmpty) { // some devices (like chromebooks) have no google calendars, so also use iosEventColors as fallback
       eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
     }
   }
