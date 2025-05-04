@@ -142,7 +142,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   FocusNode locationFocusNode = FocusNode();
   FocusNode websiteFocusNode = FocusNode();
   List<EventColor> eventColors = [];
-  String? colorSourceCalendarId;
   String? colorsFromCalendarId;
 
   @override
@@ -191,9 +190,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     _descriptionController.text = event.description ?? '';
     _locationController.text = event.location ?? '';
     _websiteController.text = event.url?.data?.contentText ?? '';
-    if (event.color != null) {
-      colorSourceCalendarId = event.calendarId;
-    }
+    _websiteController.text = event.url?.data?.contentText ?? '';
     loadEventColors();
     if (calendar?.isReadOnly ?? false) {
       Future.delayed(const Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('read_only_event'.localize()), duration: const Duration(seconds: 60))));
@@ -685,7 +682,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                               final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context, selectedColor: event.color == null ? null : Color(event.color!), canReset: colorsFromCalendarId == null);
                                               final eventColor = eventColors.firstWhereOrNull((eventColor) => Color(eventColor.color) == color);
                                               if (eventColor != null || color == Colors.transparent) {
-                                                  colorSourceCalendarId = colorsFromCalendarId ?? event.calendarId;
                                                 setState(()  {
                                                    event.updateEventColor(eventColor);
                                                 });
@@ -1346,17 +1342,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.location = _locationController.text;
     EventColor? bufferedEventColor;
     event.url = parseUrl(_websiteController.text.trim());
-    if (Platform.isAndroid && colorSourceCalendarId != null && colorSourceCalendarId != event.calendarId) { // if event color is set by other calendar, i need to save it with the color source calendar and then change calendarId, else storign of event color for local calendars doenst work
-      final calendarId = event.calendarId;
-      event.calendarId = colorSourceCalendarId;
-      final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
-      event.eventId = eventId?.data;
-      event.calendarId = calendarId;
-      if ((event.color ?? 0) != 0 && (event.colorKey ?? 0) != 0) {
-        bufferedEventColor = EventColor(event.color ?? 0, event.colorKey ?? 0);
-      }
-      event.updateEventColor(null);
-    }
     if (allDay() && event.start != null && event.end != null) {
       event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
       event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day + 1); // allday enddate is next day mightnight utc
@@ -1367,9 +1352,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.eventId = eventId?.data;
     if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
       event.end = cachedEnd;
-    }
-    if (bufferedEventColor != null) {
-      event.updateEventColor(bufferedEventColor);
     }
     if (context.mounted) {
       Navigator.pop(
