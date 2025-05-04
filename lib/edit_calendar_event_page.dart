@@ -13,7 +13,6 @@ import 'package:edit_calendar_event_view/time_zone_search_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:sprintf/sprintf.dart';
@@ -38,17 +37,20 @@ final _deviceCalendarPlugin = DeviceCalendarPlugin(shouldInitTimezone: false);
 class EditCalendarEventPage extends StatefulWidget {
   static String? currentTimeZone;
   static Color? backgroundColor;
-  static List<Color> iosEventColors = []; // there are no ios event colors by default, if you add colors here you need to handle persisting of these colors for events by yourself
+  static List<Color> fallbackColors = [
+  ]; // for iOS and local calendars no colors are savable for an event. use these as fallback, but they aren't stored in the calendar!
 
   static Future<dynamic> show(BuildContext context,
       {String? calendarId,
         Event? event,
-      String? title,
-      String? description,
-      int? startDate,
-      int? endDate,
-      bool? allDay, DatePickerType? datePickerType, List<Calendar>? availableCalendars, EventColor? eventColor, List<Reminder>? reminders}) async {
-      currentTimeZone = tz.local.toString();
+        String? title,
+        String? description,
+        int? startDate,
+        int? endDate,
+        bool? allDay, DatePickerType? datePickerType, List<
+          Calendar>? availableCalendars, EventColor? eventColor, List<
+          Reminder>? reminders}) async {
+    currentTimeZone = tz.local.toString();
     List<Calendar> calendars = availableCalendars ??
         (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
     Calendar? calendar;
@@ -62,7 +64,7 @@ class EditCalendarEventPage extends StatefulWidget {
           .firstWhereOrNull((element) => element.id == event?.calendarId);
     }
     calendar ??= calendars.firstWhereOrNull((element) =>
-        !(element.isReadOnly ?? true) && (element.isDefault ?? false));
+    !(element.isReadOnly ?? true) && (element.isDefault ?? false));
     calendar ??=
         calendars.firstWhereOrNull((element) => !(element.isReadOnly ?? true));
     if (!context.mounted) {
@@ -72,17 +74,18 @@ class EditCalendarEventPage extends StatefulWidget {
       datePickerType = DatePickerType.material;
     }
     final page = EditCalendarEventPage(
-      event: event,
-      calendar: calendar,
-      title: title,
-      description: description,
-      startDate: startDate,
-      endDate: endDate,
-      allDay: allDay,
-      datePickerType: datePickerType ?? DatePickerType.material,
-      availableCalendars: calendars.where((calendar) => calendar.isReadOnly == false).toList(),
-      eventColor: eventColor,
-      reminders: reminders
+        event: event,
+        calendar: calendar,
+        title: title,
+        description: description,
+        startDate: startDate,
+        endDate: endDate,
+        allDay: allDay,
+        datePickerType: datePickerType ?? DatePickerType.material,
+        availableCalendars: calendars.where((calendar) =>
+        calendar.isReadOnly == false).toList(),
+        eventColor: eventColor,
+        reminders: reminders
     );
     if (MacosTheme.maybeOf(context) != null) {
       return MultiPlatformDialog.show(context, page,
@@ -91,7 +94,7 @@ class EditCalendarEventPage extends StatefulWidget {
       return Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => page,
-        settings: RouteSettings(name: 'EditCalendarEventPage')),
+            settings: RouteSettings(name: 'EditCalendarEventPage')),
       );
     }
   }
@@ -108,19 +111,18 @@ class EditCalendarEventPage extends StatefulWidget {
   final EventColor? eventColor;
   final List<Reminder>? reminders;
 
-  const EditCalendarEventPage(
-      {super.key,
-      this.event,
-      this.calendar,
-      this.title,
-      this.description,
-      this.startDate,
-      this.endDate,
-      this.allDay,
-      required this.datePickerType, this.availableCalendars,
-        this.eventColor,
-        this.reminders
-      });
+  const EditCalendarEventPage({super.key,
+    this.event,
+    this.calendar,
+    this.title,
+    this.description,
+    this.startDate,
+    this.endDate,
+    this.allDay,
+    required this.datePickerType, this.availableCalendars,
+    this.eventColor,
+    this.reminders
+  });
 
   @override
   _EditCalendarEventPageState createState() => _EditCalendarEventPageState();
@@ -147,7 +149,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   @override
   void initState() {
     super.initState();
-     if (tz.local == null) {
+    if (tz.local == null) {
       tz.setLocalLocation(
           tz.getLocation(EditCalendarEventPage.currentTimeZone ?? 'UTC'));
     }
@@ -155,7 +157,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (widget.event != null) {
       event = widget.event!;
       // make sure start and end hafve the same timezone
-      event.end = tz.TZDateTime.from(event.end ?? DateTime.now().add(Duration(hours: 1)), event.start?.location ?? tz.local);
+      event.end = tz.TZDateTime.from(
+          event.end ?? DateTime.now().add(Duration(hours: 1)),
+          event.start?.location ?? tz.local);
     } else {
       event = Event(widget.calendar?.id,
           start: TZDateTime.from(DateTime.now(), tz.local),
@@ -191,44 +195,42 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     _locationController.text = event.location ?? '';
     _websiteController.text = event.url?.data?.contentText ?? '';
     _websiteController.text = event.url?.data?.contentText ?? '';
-    loadEventColors();
+    loadEventColors(initialLoad: true);
     if (calendar?.isReadOnly ?? false) {
-      Future.delayed(const Duration(milliseconds: 100)).then((_) => ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('read_only_event'.localize()), duration: const Duration(seconds: 60))));
+      Future.delayed(const Duration(milliseconds: 100)).then((_) =>
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
+              content: Text('read_only_event'.localize()),
+              duration: const Duration(seconds: 60))));
     }
   }
 
-  void loadEventColors() async {
-    if (Platform.isAndroid) { // only supported on Android
+  Future<void> loadEventColors({bool initialLoad = false}) async {
     final currCalendar = calendar;
-    colorsFromCalendarId = null;
+    List<EventColor>? retrievedColors;
+
     if (currCalendar != null) {
-      List<EventColor> eventColors = (await _deviceCalendarPlugin.retrieveEventColors(currCalendar)) ?? [];
-      if (eventColors.isEmpty){
-        final allCalendars = (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
-        for (final cal in allCalendars) {
-          eventColors = (await _deviceCalendarPlugin.retrieveEventColors(cal)) ?? [];
-          if (eventColors.isNotEmpty) {
-            colorsFromCalendarId = cal.id;
-            break;
-          }
-        }
-      }
-        setState(() {
-          this.eventColors = eventColors ?? [];
-        });
+      retrievedColors = await _deviceCalendarPlugin.retrieveEventColors(currCalendar);
     }
+    setState(() {
+
+    if (retrievedColors?.isNotEmpty ?? false) {
+      eventColors = retrievedColors ?? [];
     } else {
-      eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
+      eventColors = EditCalendarEventPage.fallbackColors.mapIndexed(
+            (index, color) => EventColor(color.value, -1 - index),
+      ).toList();
+      if (initialLoad && event.color != null) {
+        event.updateEventColor(eventColors.firstWhereOrNull((eventColor) => eventColor.color == event.color));
+      }
     }
-    if (eventColors.isEmpty) { // some devices (like chromebooks) have no google calendars, so also use iosEventColors as fallback
-      eventColors = EditCalendarEventPage.iosEventColors.mapIndexed((index, color) => EventColor(color.value, index)).toList();
-    }
+    });
   }
 
   TZDateTime epochMillisToTZDateTime(int epochMillis) {
     // Initialize timezone data; required if you haven't done it elsewhere in your app.
     // Convert epoch milliseconds to a DateTime object.
-    return tz.TZDateTime.fromMillisecondsSinceEpoch(event.start?.location ?? tz.local, epochMillis);
+    return tz.TZDateTime.fromMillisecondsSinceEpoch(
+        event.start?.location ?? tz.local, epochMillis);
   }
 
   Color? buttonTextColor;
@@ -236,31 +238,41 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
   @override
   Widget build(BuildContext context) {
-    buttonTextColor ??= Theme.of(context).brightness == Brightness.light ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface;
-    iconColor ??= Theme.of(context)
+    buttonTextColor ??= Theme
+        .of(context)
+        .brightness == Brightness.light ? Theme
+        .of(context)
+        .primaryColor : Theme
+        .of(context)
+        .colorScheme
+        .onSurface;
+    iconColor ??= Theme
+        .of(context)
         .colorScheme
         .onSurface
         .withOpacity(0.64);
     final title =
-        (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false) ? 'read_only' : 'edit_event').localize();
+    (widget.event == null ? 'add_event' : (calendar?.isReadOnly ?? false)
+        ? 'read_only'
+        : 'edit_event').localize();
     return PopScope(
       canPop: true,
-      onPopInvoked : (didPop){
-      ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
-    },
+      onPopInvoked: (didPop) {
+        ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+      },
       child: MultiPlatformScaffold(
           title: title,
           macOsLeading: MacosIconButton(
-            icon:  Icon(Icons.close, color: Color(0xff808080)),
+            icon: Icon(Icons.close, color: Color(0xff808080)),
             onPressed: () => Navigator.pop(context),
             padding: const EdgeInsets.all(5.0),
           ),
           actions: [
             if (widget.event != null && calendar?.isReadOnly == false)
               Padding(
-                padding:  EdgeInsets.only(right: 20.0),
+                padding: EdgeInsets.only(right: 20.0),
                 child: IconButton(
-                  icon:  Icon(
+                  icon: Icon(
                     Icons.delete,
                     color: iconColor,
                     semanticLabel: 'delete'.localize(),
@@ -304,13 +316,15 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 ),
             ],
           ),
-          floatingActionButton: calendar?.isReadOnly ?? false ? null : FloatingActionButton(
+          floatingActionButton: calendar?.isReadOnly ?? false
+              ? null
+              : FloatingActionButton(
             tooltip: 'save'.localize(),
             onPressed: () async {
               await confirmPress(context);
             },
             backgroundColor: Colors.green,
-            child:  Icon(
+            child: Icon(
               Icons.check,
               color: Colors.white,
               semanticLabel: 'save'.localize(),
@@ -333,21 +347,22 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   DateTime endDate() {
-    return  event.end ?? startDate().add(const Duration(hours: 1));
+    return event.end ?? startDate().add(const Duration(hours: 1));
   }
 
   bool allDay() {
     return event.allDay ?? false;
   }
+
   FocusNode contentFocusNode = FocusNode();
-  bool controlPressed  = false;
+  bool controlPressed = false;
 
   Widget content() {
     return KeyboardListener(
         focusNode: contentFocusNode,
         onKeyEvent: (event) {
           if (event is KeyDownEvent) {
-            switch(event.logicalKey) {
+            switch (event.logicalKey) {
               case LogicalKeyboardKey.escape:
                 Navigator.pop(context);
               case LogicalKeyboardKey.keyS:
@@ -361,665 +376,731 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
           }
         },
         child: Builder(builder: (context) {
-          return SingleChildScrollView(child: 
-            Center(child: SizedBox(width: 500, child:  AbsorbPointer(
-                      absorbing: calendar?.isReadOnly ?? false,
-                      child: Padding(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                        child: Column(
-                            children: <Widget>[
-                              Card(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(horizontalPadding),
-                                      child: TextFormField(
-                                        controller: _titleController,
-                                        maxLines: 1,
-                                        focusNode: event.title == null ? titleFocusNode ??= (FocusNode()..requestFocus()) : null,
-                                        decoration: InputDecoration.collapsed(
-                                            hintText: 'event_title'.localize(),
-                                            hintStyle:
-                                                const TextStyle(color: Colors.grey),
-                                            border: InputBorder.none),
-                                      ),
-                                    ),
-                                    divider(),
-                                    Padding(
-                                      padding: EdgeInsets.all(horizontalPadding),
-                                      child: TextFormField(
-                                        focusNode: descriptionFocusNode,
-                                        controller: _descriptionController,
-                                        maxLines: 100,
-                                        minLines: 1,
-                                        maxLengthEnforcement:
-                                            MaxLengthEnforcement.enforced,
-                                        decoration: InputDecoration.collapsed(
-                                            hintText: 'event_description'.localize(),
-                                            hintStyle:
-                                                const TextStyle(color: Colors.grey),
-                                            border: InputBorder.none),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Card(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ListTile(
-                                        leading:  Icon(Icons.access_time_rounded,
-                                          color: iconColor,),
-                                        title: Row(
-                                          children: <Widget>[
-                                            Expanded(child: Text('all_day'.localize(),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium
-                                                  ?.copyWith(color: buttonTextColor),)),
-                                            Switch.adaptive(
-                                              value: allDay(),
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  event.allDay = value;
-                                                  final end = event.end;
-                                                  final start = event.start;
-                                                  if (end != null && start != null) {
-                                                    if (end.day != start.day && end.difference(start).inHours < 10) { // user probably wanted just one day all day event
-                                                      event.end = TZDateTime(start.location, start.year, start.month, start.day, 23, 59);
-                                                    }
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        onTap: () {
-                                          setState(() {
-                                            event.allDay = !allDay();
-                                          });
-                                        }),
-                                    if (widget.datePickerType == DatePickerType.cupertino)
-                                      SizedBox(
-                                        height: 96,
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: CupertinoDatePicker(
-                                                  use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
-                                                  key: ValueKey((allDay(), updatedStartDate?.hashCode)),
-                                                  mode: allDay() ? CupertinoDatePickerMode.date : CupertinoDatePickerMode.dateAndTime,
-                                                  initialDateTime: startDate(),
-                                                  onDateTimeChanged: (dateTime) {
-                                                    setStartDate(dateTime, null, null);
-                                                  }),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    if (widget.datePickerType == DatePickerType.cupertino)
-                                      SizedBox(
-                                        height: 96,
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: CupertinoDatePicker(
-                                                  key: ValueKey((allDay(), updatedEndDate?.hashCode)),
-                                                  use24hFormat: MediaQuery.alwaysUse24HourFormatOf(context),
-                                                  mode: allDay() ? CupertinoDatePickerMode.date : CupertinoDatePickerMode.dateAndTime,
-                                                  initialDateTime: endDate(),
-                                                  onDateTimeChanged: (dateTime) {
-                                                    setEndDate(dateTime, null, null);
-                                                  }),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    if (widget.datePickerType == DatePickerType.material)
-                                      ListTile(
-                                        title: Row(
-                                          children: [
-                                            const SizedBox(width: 26),
-                                       Expanded(child: Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: TextButton(
-                                                onPressed: () async {
-                                                  await startDatePicker(context);
-                                                },
-                                                child: Text(
-                                                    DateFormat('EEE, MMM d, yyyy')
-                                                        .format(startDate()),
-                                                    style: const TextStyle(fontSize: 16))))),
-                                            if (allDay() == false)
-                                              TextButton(
-                                                  onPressed: () {
-                                                    setStartTime(context);
-                                                  },
-                                                  child: Text(
-                                                      DateFormat.jm()
-                                                          .format(startDate()),
-                                                      style:
-                                                      const TextStyle(fontSize: 16))),
-                                          ],
-                                        ),
-                                        onTap: () async {
-                                          await startDatePicker(context);
-                                        },
-                                      ),
-                                    if (widget.datePickerType == DatePickerType.material)
-                                      ListTile(
-                                        title: Row(
-                                          children: [
-                                            const SizedBox(width: 26),
-                                            Expanded(child: Align(
-                                                alignment: Alignment.centerLeft, child: TextButton(
-                                                onPressed: () async {
-                                                  await endDatePicker(context);
-                                                },
-                                                child: Text(
-                                                    DateFormat('EEE, MMM d, yyyy')
-                                                        .format(endDate()),
-                                                    style: const TextStyle(fontSize: 16))))),
-                                            if (allDay() == false)
-                                              TextButton(
-                                                onPressed: () {
-                                                  setEndTime(context);
-                                                },
-                                                child: Text(
-                                                    DateFormat.jm().format(endDate()),
-                                                    style: const TextStyle(fontSize: 16)),
-                                              ),
-                                          ],
-                                        ),
-                                        onTap: () async {
-                                          await endDatePicker(context);
-                                        },
-                                      ),
-                                    ListTile(
-                                        leading:  Icon(Icons.refresh,
-                                            color: iconColor),
-                                        title: Text(
-                                            event.recurrenceRule == null
-                                                ? 'repeat_once'.localize()
-                                                : getRRuleString(event.recurrenceRule),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(color: buttonTextColor)
-                                        ),
-                                        onTap: () async {
-                                          selectRecurrenceRule();
-                                        }),
-                                  ],
-                                ),
-                              ),
-                              Card(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.calendar_month,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: ListTile(
-                                            title: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Expanded(child: Align(
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Text('${'calendar'.localize()}',
-                                                    maxLines: 1,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleMedium
-                                                        ?.copyWith(color: buttonTextColor),),
-                                                )),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(right: 4.0),
-                                                  child: Container(
-                                                    alignment: Alignment.center,
-                                                    width: 10,
-                                                    height: 10,
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color:
-                                                            Color(calendar?.color ?? 0)),
-                                                  ),
-                                                ),
-                                                Text(calendar?.name ??
-                                                    'select_calendar'.localize()),
-                                              ],
-                                            ),
-                                            onTap: () async {
-                                              final calendars = widget.availableCalendars ??
-                                                  (await _deviceCalendarPlugin
-                                                              .retrieveCalendars())
-                                                          .data
-                                                          ?.where((element) =>
-                                                              element.isReadOnly == false)
-                                                          .toList() ??
-                                                      [];
-                                              if (!context.mounted) {
-                                                return;
-                                              }
-                                              var result = await CalendarSelectionDialog
-                                                  .showCalendarDialog(
-                                                      context,
-                                                      'select_calendar'.localize(),
-                                                      null,
-                                                      calendars,
-                                                      calendars.firstWhereOrNull(
-                                                          (element) =>
-                                                              element.id ==
-                                                              calendar?.id));
-                                              if (result?.id != null && result?.id != event.calendarId) {
-                                                event.updateEventColor(null);
-                                                setState(() {
-                                                  calendar = result;
-                                                  event.calendarId = result?.id;
-                                                });
-                                                loadEventColors();
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    if(eventColors.isNotEmpty)
-                                      divider(),
-                                    if(eventColors.isNotEmpty)
-                                    Row(
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.color_lens_outlined,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: ListTile(
-                                            title: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Expanded(child: Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Text('${'event_color'.localize()}',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleMedium
-                                                          ?.copyWith(color: buttonTextColor),),
-                                                )),
-                                                if ((event.color ?? 0) != 0)
-                                                Container(
-                                                    alignment: Alignment.center,
-                                                    width: 20,
-                                                    height: 20,
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color:
-                                                        Color(event.color ?? 0)),
-                                                ),
-                                                if ((event.color ?? 0) == 0)
-                                                Text('not_set'.localize(),
-                                                ),
-                                              ],
-                                            ),
-                                            onTap: () async {
-                                              final color = await ColorPickerDialog.selectColorDialog(eventColors.map((eventColor) => Color(eventColor.color)).toList(), context, selectedColor: event.color == null ? null : Color(event.color!), canReset: colorsFromCalendarId == null);
-                                              final eventColor = eventColors.firstWhereOrNull((eventColor) => Color(eventColor.color) == color);
-                                              if (eventColor != null || color == Colors.transparent) {
-                                                setState(()  {
-                                                   event.updateEventColor(eventColor);
-                                                });
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    divider(),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.alarm,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              for (final reminder
-                                                  in event.reminders ?? [])
-                                                ListTile(
-                                                  title: Text(alarmTitle(reminder)),
-                                                  trailing: IconButton(
-                                                    icon: Icon(
-                                                      semanticLabel: 'remove_reminder'.localize(),
-                                                      Icons.close_rounded,
-                                                      color: buttonTextColor,
-                                                    ),
-                                                    onPressed: () {
-                                                      List<Reminder> newReminders = [
-                                                        ...(event.reminders ?? [])
-                                                      ];
-                                                      newReminders.remove(reminder);
-                                                      setState(() {
-                                                        event.reminders = newReminders;
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              ListTile(
-                                                title: Text(
-                                                  'add_reminder'.localize(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleMedium
-                                                      ?.copyWith(color: buttonTextColor),
-                                                ),
-                                                onTap: () async {
-                                                  addReminder();
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Card(
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
-                                          child: Icon(Icons.public,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: ListTile(
-                                              title: Text('${event.start?.timeZoneName} (UTC ${(event.start?.timeZone.offset ?? 0) >= 0 ? '+' : ''}${(event.start?.timeZone.offset ?? 0) ~/ (60 * 60 * 1000)})',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleMedium
-                                                      ?.copyWith(color: buttonTextColor)),
-                                              onTap: () async {
-                                                unFocus();
-                                                final timezone = await showSearch(context: context, delegate: TimeZoneSearchDelegate());
-                                              if (timezone is MapEntry<String, Location>) {
-                                                setState(() {
-                                                  final start = event.start;
-                                                  final end = event.end;
-                                                  if (start != null) {
-                                                    event.start = TZDateTime(
-                                                      timezone.value,
-                                                      start.year,
-                                                      start.month,
-                                                      start.day,
-                                                      start.hour,
-                                                      start.minute,
-                                                      start.second,
-                                                      start.millisecond,
-                                                      start.microsecond,
-                                                    );
-                                                  }
-                                                  if (end != null) {
-                                                    event.end = TZDateTime(
-                                                      timezone.value,
-                                                      end.year,
-                                                      end.month,
-                                                      end.day,
-                                                      end.hour,
-                                                      end.minute,
-                                                      end.second,
-                                                      end.millisecond,
-                                                      end.microsecond,
-                                                    );
-                                                  }
-                                                });
-                                              }
-                                              },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    divider(),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
-                                          child: Icon(Icons.location_on_outlined,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: TextFormField(
-                                            focusNode: locationFocusNode,
-                                            controller: _locationController,
-                                            maxLines: 3,
-                                            minLines: 1,
-                                            maxLengthEnforcement:
-                                            MaxLengthEnforcement.enforced,
-                                            decoration: InputDecoration.collapsed(
-                                                hintText: 'event_location'.localize(),
-                                                hintStyle:
-                                                const TextStyle(color: Colors.grey),
-                                                border: InputBorder.none),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    divider(),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        InkWell(
-                                          onTap: event?.url?.data?.contentText == null ? null : () async {
-                                            final url = Uri.parse(event?.url?.data?.contentText ?? '');
-                                            if (url != null) {
-                                              if (!await launchUrl(url)) {
-                                                throw Exception('Could not launch $url');
-                                              }
-                                            }
-                                          }, child: Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
-                                          child: Icon(Icons.web_sharp,
-                                              color: iconColor),
-                                        )),
-                                        Expanded(
-                                          child: TextFormField(
-                                            focusNode: websiteFocusNode,
-                                            controller: _websiteController,
-                                            maxLines: 3,
-                                            minLines: 1,
-                                            maxLengthEnforcement:
-                                            MaxLengthEnforcement.enforced,
-                                            decoration: InputDecoration.collapsed(
-                                                hintText: 'event_website'.localize(),
-                                                hintStyle:
-                                                const TextStyle(color: Colors.grey),
-                                                border: InputBorder.none),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    divider(),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
-                                          child: Icon(Icons.question_mark,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: ListTile(
-                                            title: Text( getEventStatus() == EventStatus.None ? 'set_status'.localize() :  getEventStatus().enumToString.localize(),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.copyWith(color: buttonTextColor)
-                                            ),
-                                            onTap: () async {
-                                              selectStatus();
-                                            },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    divider(),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 4  , 20),
-                                          child: Icon(Icons.timelapse,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: ListTile(
-                                            title: Text(event.availability.enumToString.localize(),
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(color: buttonTextColor),),
-                                            onTap: () async {
-                                              selectAvailability();
-                                            },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    divider(),
-                                    Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                         Padding(
-                                          padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                          child: Icon(Icons.group,
-                                              color: iconColor),
-                                        ),
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              for (final Attendee attendee
-                                                  in event.attendees?.nonNulls ?? [])
-                                                ListTile(
-                                                  title: Text('${attendee.name} (${attendee.emailAddress})'),
-                                                  subtitle: Text(() {
-                                                    StringBuffer buffer = StringBuffer();
-                                                    if ((attendee.role ??
-                                                        AttendeeRole.None) !=
-                                                        AttendeeRole.None) {
-                                                      buffer.write(
-                                                          attendee.role!
-                                                              .enumToString);
-                                                      buffer.write(' ');
-                                                    }
-                                                    if (Platform.isAndroid) {
-                                                      if ((attendee
-                                                          .androidAttendeeDetails
-                                                          ?.attendanceStatus ??
-                                                          AndroidAttendanceStatus
-                                                              .None) !=
-                                                          AndroidAttendanceStatus
-                                                              .None) {
-                                                        buffer.write(
-                                                            '(${(attendee
-                                                                .androidAttendeeDetails
-                                                                ?.attendanceStatus ??
-                                                                AndroidAttendanceStatus
-                                                                    .None)
-                                                                .enumToString})');
-                                                      }
-                                                    }
-                                                    if (Platform.isIOS) {
-                                                      if ((attendee
-                                                          .iosAttendeeDetails
-                                                          ?.attendanceStatus ??
-                                                          IosAttendanceStatus
-                                                              .Unknown) !=
-                                                          IosAttendanceStatus
-                                                              .Unknown) {
-                                                        buffer.write(
-                                                            '(${(attendee
-                                                                .iosAttendeeDetails
-                                                                ?.attendanceStatus ??
-                                                                IosAttendanceStatus
-                                                                    .Unknown)
-                                                                .enumToString})');
-                                                      }
-                                                    }
-                                                    return buffer.toString()
-                                                        .trim();
-                                                  }(),),
-                                                    trailing: IconButton(
-                                                    icon: Icon(
-                                                    Icons.close_rounded,
-                                                    color: buttonTextColor,
-                                                    ),
-                                                    onPressed: () {
-                                                    List<Attendee> newAttendees = [
-                                                    ...(event.attendees?.nonNulls ??
-                                                    [])
-                                                    ];
-                                                    newAttendees.remove(attendee);
-                                                    setState(() {
-                                                    event.attendees = newAttendees;
-                                                    });
-                                                    },
-                                                    ),
-                                                    ),
-                                                    ListTile(
-                                                    title: Text(
-                                                    'add_attendee'.localize(),
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleMedium
-                                                      ?.copyWith(color: buttonTextColor),
-                                                ),
-                                                onTap: () async {
-                                                  addAttendee();
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 72,)
-                            ]),
+          return SingleChildScrollView(child:
+          Center(child: SizedBox(width: 500, child: AbsorbPointer(
+            absorbing: calendar?.isReadOnly ?? false,
+            child: Padding(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+              child: Column(
+                  children: <Widget>[
+                    Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(horizontalPadding),
+                            child: TextFormField(
+                              controller: _titleController,
+                              maxLines: 1,
+                              focusNode: event.title == null ?
+                              titleFocusNode ??= (FocusNode()
+                                ..requestFocus()) : null,
+                              decoration: InputDecoration.collapsed(
+                                  hintText: 'event_title'.localize(),
+                                  hintStyle:
+                                  const TextStyle(color: Colors.grey),
+                                  border: InputBorder.none),
+                            ),
+                          ),
+                          divider(),
+                          Padding(
+                            padding: EdgeInsets.all(horizontalPadding),
+                            child: TextFormField(
+                              focusNode: descriptionFocusNode,
+                              controller: _descriptionController,
+                              maxLines: 100,
+                              minLines: 1,
+                              maxLengthEnforcement:
+                              MaxLengthEnforcement.enforced,
+                              decoration: InputDecoration.collapsed(
+                                  hintText: 'event_description'.localize(),
+                                  hintStyle:
+                                  const TextStyle(color: Colors.grey),
+                                  border: InputBorder.none),
+                            ),
+                          )
+                        ],
                       ),
                     ),
+                    Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListTile(
+                              leading: Icon(Icons.access_time_rounded,
+                                color: iconColor,),
+                              title: Row(
+                                children: <Widget>[
+                                  Expanded(child: Text('all_day'.localize(),
+                                    style: Theme
+                                        .of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(color: buttonTextColor),)),
+                                  Switch.adaptive(
+                                    value: allDay(),
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        event.allDay = value;
+                                        final end = event.end;
+                                        final start = event.start;
+                                        if (end != null && start != null) {
+                                          if (end.day != start.day && end
+                                              .difference(start)
+                                              .inHours <
+                                              10) { // user probably wanted just one day all day event
+                                            event.end = TZDateTime(
+                                                start.location, start.year,
+                                                start.month, start.day, 23, 59);
+                                          }
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  event.allDay = !allDay();
+                                });
+                              }),
+                          if (widget.datePickerType == DatePickerType.cupertino)
+                            SizedBox(
+                              height: 96,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: CupertinoDatePicker(
+                                        use24hFormat: MediaQuery
+                                            .alwaysUse24HourFormatOf(context),
+                                        key: ValueKey(
+                                            (allDay(), updatedStartDate
+                                                ?.hashCode)),
+                                        mode: allDay() ? CupertinoDatePickerMode
+                                            .date : CupertinoDatePickerMode
+                                            .dateAndTime,
+                                        initialDateTime: startDate(),
+                                        onDateTimeChanged: (dateTime) {
+                                          setStartDate(dateTime, null, null);
+                                        }),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (widget.datePickerType == DatePickerType.cupertino)
+                            SizedBox(
+                              height: 96,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: CupertinoDatePicker(
+                                        key: ValueKey((allDay(), updatedEndDate
+                                            ?.hashCode)),
+                                        use24hFormat: MediaQuery
+                                            .alwaysUse24HourFormatOf(context),
+                                        mode: allDay() ? CupertinoDatePickerMode
+                                            .date : CupertinoDatePickerMode
+                                            .dateAndTime,
+                                        initialDateTime: endDate(),
+                                        onDateTimeChanged: (dateTime) {
+                                          setEndDate(dateTime, null, null);
+                                        }),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (widget.datePickerType == DatePickerType.material)
+                            ListTile(
+                              title: Row(
+                                children: [
+                                  const SizedBox(width: 26),
+                                  Expanded(child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: TextButton(
+                                          onPressed: () async {
+                                            await startDatePicker(context);
+                                          },
+                                          child: Text(
+                                              DateFormat('EEE, MMM d, yyyy')
+                                                  .format(startDate()),
+                                              style: const TextStyle(
+                                                  fontSize: 16))))),
+                                  if (allDay() == false)
+                                    TextButton(
+                                        onPressed: () {
+                                          setStartTime(context);
+                                        },
+                                        child: Text(
+                                            DateFormat.jm()
+                                                .format(startDate()),
+                                            style:
+                                            const TextStyle(fontSize: 16))),
+                                ],
+                              ),
+                              onTap: () async {
+                                await startDatePicker(context);
+                              },
+                            ),
+                          if (widget.datePickerType == DatePickerType.material)
+                            ListTile(
+                              title: Row(
+                                children: [
+                                  const SizedBox(width: 26),
+                                  Expanded(child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: TextButton(
+                                          onPressed: () async {
+                                            await endDatePicker(context);
+                                          },
+                                          child: Text(
+                                              DateFormat('EEE, MMM d, yyyy')
+                                                  .format(endDate()),
+                                              style: const TextStyle(
+                                                  fontSize: 16))))),
+                                  if (allDay() == false)
+                                    TextButton(
+                                      onPressed: () {
+                                        setEndTime(context);
+                                      },
+                                      child: Text(
+                                          DateFormat.jm().format(endDate()),
+                                          style: const TextStyle(fontSize: 16)),
+                                    ),
+                                ],
+                              ),
+                              onTap: () async {
+                                await endDatePicker(context);
+                              },
+                            ),
+                          ListTile(
+                              leading: Icon(Icons.refresh,
+                                  color: iconColor),
+                              title: Text(
+                                  event.recurrenceRule == null
+                                      ? 'repeat_once'.localize()
+                                      : getRRuleString(event.recurrenceRule),
+                                  style: Theme
+                                      .of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(color: buttonTextColor)
+                              ),
+                              onTap: () async {
+                                selectRecurrenceRule();
+                              }),
+                        ],
+                      ),
+                    ),
+                    Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                child: Icon(Icons.calendar_month,
+                                    color: iconColor),
+                              ),
+                              Expanded(
+                                child: ListTile(
+                                  title: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Expanded(child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text('${'calendar'.localize()}',
+                                          maxLines: 1,
+                                          style: Theme
+                                              .of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                              color: buttonTextColor),),
+                                      )),
+                                      Padding(
+                                        padding:
+                                        const EdgeInsets.only(right: 4.0),
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          width: 10,
+                                          height: 10,
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color:
+                                              Color(calendar?.color ?? 0)),
+                                        ),
+                                      ),
+                                      Text(calendar?.name ??
+                                          'select_calendar'.localize()),
+                                    ],
+                                  ),
+                                  onTap: () async {
+                                    final calendars = widget
+                                        .availableCalendars ??
+                                        (await _deviceCalendarPlugin
+                                            .retrieveCalendars())
+                                            .data
+                                            ?.where((element) =>
+                                        element.isReadOnly == false)
+                                            .toList() ??
+                                        [];
+                                    if (!context.mounted) {
+                                      return;
+                                    }
+                                    var result = await CalendarSelectionDialog
+                                        .showCalendarDialog(
+                                        context,
+                                        'select_calendar'.localize(),
+                                        null,
+                                        calendars,
+                                        calendars.firstWhereOrNull(
+                                                (element) =>
+                                            element.id ==
+                                                calendar?.id));
+                                    if (result?.id != null &&
+                                        result?.id != event.calendarId) {
+                                      event.updateEventColor(null);
+                                      setState(() {
+                                        calendar = result;
+                                        event.calendarId = result?.id;
+                                      });
+                                      loadEventColors();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          if(eventColors.isNotEmpty)
+                            divider(),
+                          if(eventColors.isNotEmpty)
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                  child: Icon(Icons.color_lens_outlined,
+                                      color: iconColor),
+                                ),
+                                Expanded(
+                                  child: ListTile(
+                                    title: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Expanded(child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            '${'event_color'.localize()}',
+                                            style: Theme
+                                                .of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                color: buttonTextColor),),
+                                        )),
+                                        if ((event.color ?? 0) != 0)
+                                          Container(
+                                            alignment: Alignment.center,
+                                            width: 20,
+                                            height: 20,
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color:
+                                                Color(event.color ?? 0)),
+                                          ),
+                                        if ((event.color ?? 0) == 0)
+                                          Text('not_set'.localize(),
+                                          ),
+                                      ],
+                                    ),
+                                    onTap: () async {
+                                      final color = await ColorPickerDialog
+                                          .selectColorDialog(
+                                          eventColors.map((eventColor) =>
+                                              Color(eventColor.color)).toList(),
+                                          context,
+                                          selectedColor: event.color == null
+                                              ? null
+                                              : Color(event.color!),
+                                          canReset: colorsFromCalendarId ==
+                                              null);
+                                      final eventColor = eventColors
+                                          .firstWhereOrNull((eventColor) =>
+                                      Color(eventColor.color) == color);
+                                      if (eventColor != null ||
+                                          color == Colors.transparent) {
+                                        setState(() {
+                                          event.updateEventColor(eventColor);
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                child: Icon(Icons.alarm,
+                                    color: iconColor),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    for (final reminder
+                                    in event.reminders ?? [])
+                                      ListTile(
+                                        title: Text(alarmTitle(reminder)),
+                                        trailing: IconButton(
+                                          icon: Icon(
+                                            semanticLabel: 'remove_reminder'
+                                                .localize(),
+                                            Icons.close_rounded,
+                                            color: buttonTextColor,
+                                          ),
+                                          onPressed: () {
+                                            List<Reminder> newReminders = [
+                                              ...(event.reminders ?? [])
+                                            ];
+                                            newReminders.remove(reminder);
+                                            setState(() {
+                                              event.reminders = newReminders;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ListTile(
+                                      title: Text(
+                                        'add_reminder'.localize(),
+                                        style: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(color: buttonTextColor),
+                                      ),
+                                      onTap: () async {
+                                        addReminder();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    Card(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [Padding(
+                              padding: EdgeInsets.fromLTRB(16, 16, 4, 20),
+                              child: Icon(Icons.public,
+                                  color: iconColor),
+                            ),
+                              Expanded(
+                                child: ListTile(
+                                  title: Text('${event.start
+                                      ?.timeZoneName} (UTC ${(event.start
+                                      ?.timeZone.offset ?? 0) >= 0
+                                      ? '+'
+                                      : ''}${(event.start?.timeZone.offset ??
+                                      0) ~/ (60 * 60 * 1000)})',
+                                      style: Theme
+                                          .of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(color: buttonTextColor)),
+                                  onTap: () async {
+                                    unFocus();
+                                    final timezone = await showSearch(
+                                        context: context,
+                                        delegate: TimeZoneSearchDelegate());
+                                    if (timezone is MapEntry<String,
+                                        Location>) {
+                                      setState(() {
+                                        final start = event.start;
+                                        final end = event.end;
+                                        if (start != null) {
+                                          event.start = TZDateTime(
+                                            timezone.value,
+                                            start.year,
+                                            start.month,
+                                            start.day,
+                                            start.hour,
+                                            start.minute,
+                                            start.second,
+                                            start.millisecond,
+                                            start.microsecond,
+                                          );
+                                        }
+                                        if (end != null) {
+                                          event.end = TZDateTime(
+                                            timezone.value,
+                                            end.year,
+                                            end.month,
+                                            end.day,
+                                            end.hour,
+                                            end.minute,
+                                            end.second,
+                                            end.millisecond,
+                                            end.microsecond,
+                                          );
+                                        }
+                                      });
+                                    }
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                          divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
+                                child: Icon(Icons.location_on_outlined,
+                                    color: iconColor),
+                              ),
+                              Expanded(
+                                child: TextFormField(
+                                  focusNode: locationFocusNode,
+                                  controller: _locationController,
+                                  maxLines: 3,
+                                  minLines: 1,
+                                  maxLengthEnforcement:
+                                  MaxLengthEnforcement.enforced,
+                                  decoration: InputDecoration.collapsed(
+                                      hintText: 'event_location'.localize(),
+                                      hintStyle:
+                                      const TextStyle(color: Colors.grey),
+                                      border: InputBorder.none),
+                                ),
+                              )
+                            ],
+                          ),
+                          divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              InkWell(
+                                  onTap: event?.url?.data?.contentText == null
+                                      ? null
+                                      : () async {
+                                    final url = Uri.parse(
+                                        event?.url?.data?.contentText ?? '');
+                                    if (url != null) {
+                                      if (!await launchUrl(url)) {
+                                        throw Exception(
+                                            'Could not launch $url');
+                                      }
+                                    }
+                                  }, child: Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
+                                child: Icon(Icons.web_sharp,
+                                    color: iconColor),
+                              )),
+                              Expanded(
+                                child: TextFormField(
+                                  focusNode: websiteFocusNode,
+                                  controller: _websiteController,
+                                  maxLines: 3,
+                                  minLines: 1,
+                                  maxLengthEnforcement:
+                                  MaxLengthEnforcement.enforced,
+                                  decoration: InputDecoration.collapsed(
+                                      hintText: 'event_website'.localize(),
+                                      hintStyle:
+                                      const TextStyle(color: Colors.grey),
+                                      border: InputBorder.none),
+                                ),
+                              )
+                            ],
+                          ),
+                          divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 4, 20),
+                                child: Icon(Icons.question_mark,
+                                    color: iconColor),
+                              ),
+                              Expanded(
+                                child: ListTile(
+                                  title: Text(
+                                      getEventStatus() == EventStatus.None
+                                          ? 'set_status'.localize()
+                                          : getEventStatus().enumToString
+                                          .localize(),
+                                      style: Theme
+                                          .of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(color: buttonTextColor)
+                                  ),
+                                  onTap: () async {
+                                    selectStatus();
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                          divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 4, 20),
+                                child: Icon(Icons.timelapse,
+                                    color: iconColor),
+                              ),
+                              Expanded(
+                                child: ListTile(
+                                  title: Text(
+                                    event.availability.enumToString.localize(),
+                                    style: Theme
+                                        .of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(color: buttonTextColor),),
+                                  onTap: () async {
+                                    selectAvailability();
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                          divider(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                child: Icon(Icons.group,
+                                    color: iconColor),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    for (final Attendee attendee
+                                    in event.attendees?.nonNulls ?? [])
+                                      ListTile(
+                                        title: Text(
+                                            '${attendee.name} (${attendee
+                                                .emailAddress})'),
+                                        subtitle: Text(() {
+                                          StringBuffer buffer = StringBuffer();
+                                          if ((attendee.role ??
+                                              AttendeeRole.None) !=
+                                              AttendeeRole.None) {
+                                            buffer.write(
+                                                attendee.role!
+                                                    .enumToString);
+                                            buffer.write(' ');
+                                          }
+                                          if (Platform.isAndroid) {
+                                            if ((attendee
+                                                .androidAttendeeDetails
+                                                ?.attendanceStatus ??
+                                                AndroidAttendanceStatus
+                                                    .None) !=
+                                                AndroidAttendanceStatus
+                                                    .None) {
+                                              buffer.write(
+                                                  '(${(attendee
+                                                      .androidAttendeeDetails
+                                                      ?.attendanceStatus ??
+                                                      AndroidAttendanceStatus
+                                                          .None)
+                                                      .enumToString})');
+                                            }
+                                          }
+                                          if (Platform.isIOS) {
+                                            if ((attendee
+                                                .iosAttendeeDetails
+                                                ?.attendanceStatus ??
+                                                IosAttendanceStatus
+                                                    .Unknown) !=
+                                                IosAttendanceStatus
+                                                    .Unknown) {
+                                              buffer.write(
+                                                  '(${(attendee
+                                                      .iosAttendeeDetails
+                                                      ?.attendanceStatus ??
+                                                      IosAttendanceStatus
+                                                          .Unknown)
+                                                      .enumToString})');
+                                            }
+                                          }
+                                          return buffer.toString()
+                                              .trim();
+                                        }(),),
+                                        trailing: IconButton(
+                                          icon: Icon(
+                                            Icons.close_rounded,
+                                            color: buttonTextColor,
+                                          ),
+                                          onPressed: () {
+                                            List<Attendee> newAttendees = [
+                                              ...(event.attendees?.nonNulls ??
+                                                  [])
+                                            ];
+                                            newAttendees.remove(attendee);
+                                            setState(() {
+                                              event.attendees = newAttendees;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ListTile(
+                                      title: Text(
+                                        'add_attendee'.localize(),
+                                        style: Theme
+                                            .of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(color: buttonTextColor),
+                                      ),
+                                      onTap: () async {
+                                        addAttendee();
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 72,)
+                  ]),
+            ),
+          ),
 
-              )));
+          )));
         }));
   }
 
-   int maxInteger =  0x7FFFFFFFFFFFFFFF;
+  int maxInteger = 0x7FFFFFFFFFFFFFFF;
+
   void addReminder() async {
     unFocus();
     Reminder? reminder = (await showDialog<Reminder>(
@@ -1031,9 +1112,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
               for (final reminder in defaultAlarmOptions
                   .map((mins) => Reminder(minutes: mins))
                   .where((element) =>
-                      event.reminders
-                          ?.none((p0) => p0.minutes == element.minutes) ??
-                      true))
+              event.reminders
+                  ?.none((p0) => p0.minutes == element.minutes) ??
+                  true))
                 SimpleDialogOption(
                   onPressed: () {
                     Navigator.pop(context, reminder);
@@ -1061,7 +1142,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         context: context,
         builder: (BuildContext context) {
           TextEditingController numberController =
-              TextEditingController(text: '10');
+          TextEditingController(text: '10');
           int currentIndex = 0;
           return AlertDialog(
             backgroundColor: EditCalendarEventPage.backgroundColor,
@@ -1071,28 +1152,29 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   void Function(void Function()) setState) {
                 return SizedBox(
                     height: 280,
-                  child: SingleChildScrollView(
-                  child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    TextField(
-                      focusNode: FocusNode()..requestFocus(),
-                      controller: numberController,
-                      keyboardType: TextInputType.number,
-                    ),
-                    for (final timeUnit in TimeUnit.values)
-                      RadioListTile(
-                        title: Text(sprintf('s_before'.localize(), [
-                          sprintf("n_${timeUnit.name}".localize(), [0])
-                        ]).replaceAll('0', '').trim()),
-                        value: TimeUnit.values.indexOf(timeUnit),
-                        groupValue: currentIndex,
-                        onChanged: (int? value) {
-                          setState(() => currentIndex = value ?? 0);
-                        },
-                      ),
-                  ],
-                )));
+                    child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            TextField(
+                              focusNode: FocusNode()
+                                ..requestFocus(),
+                              controller: numberController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            for (final timeUnit in TimeUnit.values)
+                              RadioListTile(
+                                title: Text(sprintf('s_before'.localize(), [
+                                  sprintf("n_${timeUnit.name}".localize(), [0])
+                                ]).replaceAll('0', '').trim()),
+                                value: TimeUnit.values.indexOf(timeUnit),
+                                groupValue: currentIndex,
+                                onChanged: (int? value) {
+                                  setState(() => currentIndex = value ?? 0);
+                                },
+                              ),
+                          ],
+                        )));
               },
             ),
             actions: <Widget>[
@@ -1102,7 +1184,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   int number = int.tryParse(numberController.text) ?? 0;
                   Navigator.of(context).pop(Reminder(
                       minutes:
-                          number * TimeUnit.values[currentIndex].inMinutes()));
+                      number * TimeUnit.values[currentIndex].inMinutes()));
                 },
               ),
             ],
@@ -1112,7 +1194,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
     if (reminder != null) {
       setState(() {
-        event.reminders = (event.reminders ?? [])..add(reminder!);
+        event.reminders = (event.reminders ?? [])
+          ..add(reminder!);
       });
     }
   }
@@ -1208,26 +1291,25 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(startDate()),
     );
-      if (time != null) {
-        Duration? duration = event.end?.difference(event.start ?? DateTime.now());
-        if ((duration?.inMinutes ?? 0) <= 0) {
-          duration = const Duration(minutes: 1);
-        }
-        setState(() {
-          final newDateTime = event.start?.add(Duration(
-              hours: time.hour - startDate().hour,
-              minutes: time.minute - startDate().minute));
-          if (newDateTime != null) {
+    if (time != null) {
+      Duration? duration = event.end?.difference(event.start ?? DateTime.now());
+      if ((duration?.inMinutes ?? 0) <= 0) {
+        duration = const Duration(minutes: 1);
+      }
+      setState(() {
+        final newDateTime = event.start?.add(Duration(
+            hours: time.hour - startDate().hour,
+            minutes: time.minute - startDate().minute));
+        if (newDateTime != null) {
           event.start = newDateTime;
           if (duration != null) {
             event.end = event.start?.add(duration);
             updatedEndDate = event.end;
           }
-          }
-        });
-      }
+        }
+      });
+    }
   }
-
 
 
   void setStartDate(DateTime newDate, int? hour, int? minutes) {
@@ -1343,19 +1425,34 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     EventColor? bufferedEventColor;
     event.url = parseUrl(_websiteController.text.trim());
     if (allDay() && event.start != null && event.end != null) {
-      event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
-      event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day + 1); // allday enddate is next day mightnight utc
+      event.start = TZDateTime.utc(
+          event.start!.year, event.start!.month, event.start!.day);
+      event.end = TZDateTime.utc(event.end!.year, event.end!.month,
+          event.end!.day + 1); // allday enddate is next day mightnight utc
     }
 
     final cachedEnd = event.end;
+    final cachedColorKey = event.colorKey;
+    if ((event.colorKey ?? 0) <
+        0) { // fallBack Color which doesnt exist in db so dont store it!
+      event.colorKey = null;
+    }
     final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
     event.eventId = eventId?.data;
+    if (event.eventId == null) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text('error_saving_event'.localize())));
+      return;
+    }
+    event.colorKey = cachedColorKey;
     if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
       event.end = cachedEnd;
     }
     if (context.mounted) {
       Navigator.pop(
-          context, (resultType: event.status == EventStatus.Canceled ? ResultType.deleted : ResultType.saved, event: event));
+          context, (resultType: event.status == EventStatus.Canceled
+          ? ResultType.deleted
+          : ResultType.saved, event: event));
     }
   }
 
@@ -1382,20 +1479,33 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
           recurrenceRule.byWeeks.isEmpty &&
           recurrenceRule.byMonths.isEmpty &&
           recurrenceRule.bySetPositions.isEmpty) {
-        return RecurrenceFrequency.fromFrequency(recurrenceRule.frequency).name.localize();
+        return RecurrenceFrequency
+            .fromFrequency(recurrenceRule.frequency)
+            .name
+            .localize();
       }
-       else {
-          buffer.write('${'every'.localize()}');
+      else {
+        buffer.write('${'every'.localize()}');
       }
     }
 
     // if  reminder has only frequency set
-    if (recurrenceRule.until == null && recurrenceRule.count == null && recurrenceRule.interval == null && recurrenceRule.weekStart == null && recurrenceRule.bySeconds.isEmpty && recurrenceRule.byMinutes.isEmpty && recurrenceRule.byHours.isEmpty && recurrenceRule.byWeekDays.isEmpty && recurrenceRule.byMonthDays.isEmpty && recurrenceRule.byYearDays.isEmpty && recurrenceRule.byWeeks.isEmpty && recurrenceRule.byMonths.isEmpty && recurrenceRule.bySeconds.isEmpty) {
-      return recurrenceRule.frequency.toString().toLowerCase().capitalize().localize();
+    if (recurrenceRule.until == null && recurrenceRule.count == null &&
+        recurrenceRule.interval == null && recurrenceRule.weekStart == null &&
+        recurrenceRule.bySeconds.isEmpty && recurrenceRule.byMinutes.isEmpty &&
+        recurrenceRule.byHours.isEmpty && recurrenceRule.byWeekDays.isEmpty &&
+        recurrenceRule.byMonthDays.isEmpty &&
+        recurrenceRule.byYearDays.isEmpty && recurrenceRule.byWeeks.isEmpty &&
+        recurrenceRule.byMonths.isEmpty && recurrenceRule.bySeconds.isEmpty) {
+      return recurrenceRule.frequency
+          .toString()
+          .toLowerCase()
+          .capitalize()
+          .localize();
     }
     switch (recurrenceRule.frequency) {
       case Frequency.daily:
-        buffer.write( ' ${(interval == 1 ? "day" : 'days').localize()}');
+        buffer.write(' ${(interval == 1 ? "day" : 'days').localize()}');
         break;
       case Frequency.weekly:
         buffer.write(' ${(interval == 1 ? "week" : 'weeks').localize()}');
@@ -1410,11 +1520,22 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         final bySetPosition = recurrenceRule.bySetPositions;
         final byWeekdays = recurrenceRule.byWeekDays;
         if (monthDays.isNotEmpty) {
-          buffer.write(" ${sprintf('on_day_s'.localize(), [monthDays.join(", ")])}");
+          buffer.write(
+              " ${sprintf('on_day_s'.localize(), [monthDays.join(", ")])}");
         } else if (byWeekdays.isNotEmpty) {
-          buffer.write(' ${sprintf('on_s'.localize(),[byWeekdays.map((weekDay) => DateFormat.E().format(DateTime(2018,1,1).add(Duration(days: weekDay.day - 1)))).join(", ")])}');
+          buffer.write(' ${sprintf('on_s'.localize(), [
+            byWeekdays
+                .map((weekDay) =>
+                DateFormat.E().format(
+                    DateTime(2018, 1, 1).add(Duration(days: weekDay.day - 1))))
+                .join(", ")
+          ])}');
           if (bySetPosition.isNotEmpty) {
-            buffer.write(" ${sprintf('for_s'.localize(), [bySetPosition.map((weekNmbr) => '${weekNmbr}_week'.localize()).join(', ')])}");
+            buffer.write(" ${sprintf('for_s'.localize(), [
+              bySetPosition
+                  .map((weekNmbr) => '${weekNmbr}_week'.localize())
+                  .join(', ')
+            ])}");
           }
         }
         break;
@@ -1428,13 +1549,18 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
     final byMonth = recurrenceRule.byMonths;
     if (byMonth.isNotEmpty) {
-      buffer.write(" ${sprintf('in_s'.localize(), [byMonth.map((monthNmbr) => DateFormat.MMM().format(DateTime(2020,monthNmbr, 15))).join(", ")])}");
+      buffer.write(" ${sprintf('in_s'.localize(), [
+        byMonth.map((monthNmbr) =>
+            DateFormat.MMM().format(DateTime(2020, monthNmbr, 15))).join(", ")
+      ])}");
     }
 
     if (recurrenceRule.count != null) {
-      buffer.write(" ${sprintf('for_n_events'.localize(), [recurrenceRule.count] )}");
+      buffer.write(
+          " ${sprintf('for_n_events'.localize(), [recurrenceRule.count])}");
     } else if (recurrenceRule.until != null) {
-      buffer.write(" ${sprintf('until_s'.localize(), [DateFormat.yMMMMEEEEd().format(recurrenceRule.until!.toUtc())])}");
+      buffer.write(" ${sprintf('until_s'.localize(),
+          [DateFormat.yMMMMEEEEd().format(recurrenceRule.until!.toUtc())])}");
     }
     buffer.write('.');
     return buffer.toString();
@@ -1480,7 +1606,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       });
     }
   }
-  
+
   void selectAvailability() async {
     unFocus();
     Availability? availability = (await showDialog<Availability>(
@@ -1489,7 +1615,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
           return SimpleDialog(
             backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
-              for (final availability in Availability.values.whereNot((avail) => avail == Availability.Unavailable)) // Unavailable doesnt do anything for android
+              for (final availability in Availability.values.whereNot((avail) =>
+              avail == Availability
+                  .Unavailable)) // Unavailable doesnt do anything for android
                 SimpleDialogOption(
                   onPressed: () {
                     Navigator.pop(context, availability);
@@ -1514,7 +1642,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   EventStatus getEventStatus() {
-    return event.status?? EventStatus.None;
+    return event.status ?? EventStatus.None;
   }
 
 
@@ -1536,7 +1664,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     try {
       Uri? uri = Uri.dataFromString(url);
       // Additional validation to ensure the URI has a scheme and host
-        return uri;
+      return uri;
     } catch (e) {
       // Handle any exceptions (optional logging)
       debugPrint('Error parsing URL: $e');
