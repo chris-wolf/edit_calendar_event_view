@@ -1,6 +1,7 @@
 
   const defaultAlarmOptions = [
     0,
+    5,
     15,
     30,
     1 * 60,
