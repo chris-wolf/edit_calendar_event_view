@@ -201,7 +201,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (Platform.isAndroid) { // only supported on Android
     final currCalendar = calendar;
     colorsFromCalendarId = null;
-    if (currCalendar != null) {`
+    if (currCalendar != null) {
       List<EventColor> eventColors = (await _deviceCalendarPlugin.retrieveEventColors(currCalendar)) ?? [];
       if (eventColors.isEmpty){
         final allCalendars = (await _deviceCalendarPlugin.retrieveCalendars()).data?.toList() ?? [];
