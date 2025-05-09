@@ -74,18 +74,17 @@ class EditCalendarEventPage extends StatefulWidget {
       datePickerType = DatePickerType.material;
     }
     final page = EditCalendarEventPage(
-        event: event,
-        calendar: calendar,
-        title: title,
-        description: description,
-        startDate: startDate,
-        endDate: endDate,
-        allDay: allDay,
-        datePickerType: datePickerType ?? DatePickerType.material,
-        availableCalendars: calendars.where((calendar) =>
-        calendar.isReadOnly == false).toList(),
-        eventColor: eventColor,
-        reminders: reminders
+      event: event,
+      calendar: calendar,
+      title: title,
+      description: description,
+      startDate: startDate,
+      endDate: endDate,
+      allDay: allDay,
+      datePickerType: datePickerType ?? DatePickerType.material,
+      availableCalendars: calendars.where((calendar) => calendar.isReadOnly == false).toList(),
+      eventColor: eventColor,
+      reminders: reminders
     );
     if (MacosTheme.maybeOf(context) != null) {
       return MultiPlatformDialog.show(context, page,
@@ -336,6 +335,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   Future<void> deleteEvent(BuildContext context) async {
     final event = widget.event;
     if (event != null) {
+      if (event.recurrenceRule != null ) {
+        event.recurrenceRule = null;
+        await _deviceCalendarPlugin.createOrUpdateEvent(event); // in local calendar deleting recurring events can cause other events to disappear, so remove recurring before deleting
+      }
       await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
       Navigator.pop(
           context, (resultType: ResultType.deleted, event: event));
@@ -1311,7 +1314,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     }
   }
 
-
   void setStartDate(DateTime newDate, int? hour, int? minutes) {
     Duration? duration = event.end?.difference(event.start ?? DateTime.now());
     if ((duration?.inMinutes ?? 0) <= 0) {
@@ -1425,10 +1427,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     EventColor? bufferedEventColor;
     event.url = parseUrl(_websiteController.text.trim());
     if (allDay() && event.start != null && event.end != null) {
-      event.start = TZDateTime.utc(
-          event.start!.year, event.start!.month, event.start!.day);
-      event.end = TZDateTime.utc(event.end!.year, event.end!.month,
-          event.end!.day + 1); // allday enddate is next day mightnight utc
+     event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
+      event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day, 23, 59, 59, 999);
     }
 
     final cachedEnd = event.end;
@@ -1617,7 +1617,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             children: <Widget>[
               for (final availability in Availability.values.whereNot((avail) =>
               avail == Availability
-                  .Unavailable)) // Unavailable doesnt do anything for android
+                  .Unavailable)) // Unavailable doesn't do anything for android
                 SimpleDialogOption(
                   onPressed: () {
                     Navigator.pop(context, availability);
