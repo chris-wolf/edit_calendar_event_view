@@ -1703,23 +1703,55 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     return null;
   }
 
+
   Future<void> openMapLocation(String location) async {
     final query = Uri.encodeComponent(location);
-    Uri uri;
+    Uri? uri;
 
     if (Platform.isIOS) {
+      // Apple Maps URL
       uri = Uri.parse("http://maps.apple.com/?q=$query");
+      // Alternative using latitude/longitude if available:
+      // uri = Uri.parse("maps:0,0?q=$query"); // For search
+      // uri = Uri.parse("maps://?ll=latitude,longitude"); // For specific coordinates
     } else if (Platform.isAndroid) {
-      uri = Uri.parse("geo:0,0?q=$query");
-    } else {
-      // Fallback for Windows, macOS, Linux — opens in browser
+      // Google Maps URL for search
       uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$query");
+      // Alternative using geo intent:
+      // uri = Uri.parse("geo:0,0?q=$query");
+    } else {
+      // Optional: Handle other platforms or throw an error
+      debugPrint("Map functionality not supported on this platform.");
+      // throw 'Map functionality not supported on this platform.';
+      return;
     }
 
+    // This check is technically redundant if you handle the 'else' case above
+    // where uri would remain null for unsupported platforms.
+    // if (uri == null) {
+    //   debugPrint("URI could not be constructed for location: $location");
+    //   return;
+    // }
+
+    debugPrint("Attempting to launch map with URI: $uri");
+
     if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      try {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        debugPrint("Error launching URL $uri: $e");
+        throw 'Could not launch map for location: $location. Error: $e';
+      }
     } else {
-      throw 'Could not launch map for location: $location';
+      debugPrint("Cannot launch URL: $uri. 'canLaunchUrl' returned false.");
+      // Provide more specific feedback based on platform if possible
+      String platformSpecificHelp = "";
+      if (Platform.isAndroid) {
+        platformSpecificHelp = " For Android, ensure <queries> for 'https' scheme is in AndroidManifest.xml.";
+      } else if (Platform.isIOS) {
+        platformSpecificHelp = " For iOS, ensure 'LSApplicationQueriesSchemes' includes 'http' in Info.plist.";
+      }
+      throw 'Could not launch map for location: $location. Ensure the map application is installed and permissions are set.$platformSpecificHelp';
     }
   }
 }
