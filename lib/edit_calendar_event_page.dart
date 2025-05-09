@@ -876,11 +876,16 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
+                              InkWell(
+                                  onTap: event.location?.isEmpty ?? true
+                                      ? null
+                                      : () async {
+                                    openMapLocation(event.location ?? '');
+                                  }, child: Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
                                 child: Icon(Icons.location_on_outlined,
-                                    color: iconColor),
-                              ),
+                                    color: event.location?.isEmpty ?? true ? iconColor : Colors.blue),
+                              )),
                               Expanded(
                                 child: TextFormField(
                                   focusNode: locationFocusNode,
@@ -903,11 +908,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               InkWell(
-                                  onTap: event?.url?.data?.contentText == null
+                                  onTap: event.url?.data?.contentText == null
                                       ? null
                                       : () async {
                                     final url = Uri.parse(
-                                        event?.url?.data?.contentText ?? '');
+                                        event.url?.data?.contentText ?? '');
                                     if (url != null) {
                                       if (!await launchUrl(url)) {
                                         throw Exception(
@@ -915,10 +920,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                       }
                                     }
                                   }, child: Padding(
-                                padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
+                                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
                                 child: Icon(Icons.web_sharp,
-                                    color: iconColor),
+                                    color: event.url?.data?.contentText == null ? iconColor : Colors.blue),
                               )),
+
                               Expanded(
                                 child: TextFormField(
                                   focusNode: websiteFocusNode,
@@ -1672,5 +1678,25 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
     // Return null if the URL is invalid
     return null;
+  }
+
+  Future<void> openMapLocation(String location) async {
+    final query = Uri.encodeComponent(location);
+    Uri uri;
+
+    if (Platform.isIOS) {
+      uri = Uri.parse("http://maps.apple.com/?q=$query");
+    } else if (Platform.isAndroid) {
+      uri = Uri.parse("geo:0,0?q=$query");
+    } else {
+      // Fallback for Windows, macOS, Linux — opens in browser
+      uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$query");
+    }
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch map for location: $location';
+    }
   }
 }
