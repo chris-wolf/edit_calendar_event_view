@@ -380,14 +380,14 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         },
         child: Builder(builder: (context) {
           return SingleChildScrollView(child:
-          Center(child: SizedBox(width: 500, child: AbsorbPointer(
-            absorbing: calendar?.isReadOnly ?? false,
-            child: Padding(
+          Center(child: SizedBox(width: 500, child: Padding(
               padding:
               const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
               child: Column(
                   children: <Widget>[
-                    Card(
+              AbsorbPointer(
+              absorbing: calendar?.isReadOnly ?? false,
+                  child: Card(
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
                       child: Column(
@@ -427,8 +427,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                           )
                         ],
                       ),
-                    ),
-                    Card(
+                    )),
+            AbsorbPointer(
+                absorbing: calendar?.isReadOnly ?? false,
+                child: Card(
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
                       child: Column(
@@ -600,7 +602,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                         ],
                       ),
                     ),
-                    Card(
+            ),
+            AbsorbPointer(
+                absorbing: calendar?.isReadOnly ?? false,
+                child: Card(
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
                       child: Column(
@@ -804,6 +809,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                         ],
                       ),
                     ),
+            ),
                     Card(
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
@@ -817,7 +823,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   color: iconColor),
                             ),
                               Expanded(
-                                child: ListTile(
+                                child: AbsorbPointer(
+                                  absorbing: calendar?.isReadOnly ?? false,
+                                  child: ListTile(
                                   title: Text('${event.start
                                       ?.timeZoneName} (UTC ${(event.start
                                       ?.timeZone.offset ?? 0) >= 0
@@ -869,6 +877,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     }
                                   },
                                 ),
+                                )
                               )
                             ],
                           ),
@@ -887,7 +896,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     color: event.location?.isEmpty ?? true ? iconColor : Colors.blue),
                               )),
                               Expanded(
-                                child: TextFormField(
+                                child: AbsorbPointer(
+                                  absorbing: calendar?.isReadOnly ?? false,
+                                  child: TextFormField(
                                   focusNode: locationFocusNode,
                                   controller: _locationController,
                                   maxLines: 3,
@@ -900,6 +911,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                       const TextStyle(color: Colors.grey),
                                       border: InputBorder.none),
                                 ),
+                                )
                               )
                             ],
                           ),
@@ -926,7 +938,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                               )),
 
                               Expanded(
-                                child: TextFormField(
+                                child: AbsorbPointer(
+                                  absorbing: calendar?.isReadOnly ?? false,
+                                  child:  TextFormField(
                                   focusNode: websiteFocusNode,
                                   controller: _websiteController,
                                   maxLines: 3,
@@ -940,10 +954,13 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                       border: InputBorder.none),
                                 ),
                               )
+                              )
                             ],
                           ),
                           divider(),
-                          Row(
+                      AbsorbPointer(
+                        absorbing: calendar?.isReadOnly ?? false,
+                        child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
@@ -971,8 +988,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                               )
                             ],
                           ),
+                      ),
                           divider(),
-                          Row(
+                      AbsorbPointer(
+                        absorbing: calendar?.isReadOnly ?? false,
+                        child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
@@ -996,8 +1016,11 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                               )
                             ],
                           ),
+                      ),
                           divider(),
-                          Row(
+                      AbsorbPointer(
+                        absorbing: calendar?.isReadOnly ?? false,
+                        child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
@@ -1096,12 +1119,12 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                               )
                             ],
                           )
+                      )
                         ],
                       ),
                     ),
                     const SizedBox(height: 72,)
                   ]),
-            ),
           ),
 
           )));
