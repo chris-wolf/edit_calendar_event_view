@@ -273,7 +273,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 child: IconButton(
                   icon: Icon(
                     Icons.delete,
-                    color: iconColor,
                     semanticLabel: 'delete'.localize(),
                   ),
                   tooltip: 'delete'.localize(),
