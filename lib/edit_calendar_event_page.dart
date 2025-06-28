@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:device_calendar/device_calendar.dart';
+import 'package:devicelocale/devicelocale.dart';
 import 'package:edit_calendar_event_view/color_picker_dialog.dart';
 import 'package:edit_calendar_event_view/event_attendee_page.dart';
 import 'package:edit_calendar_event_view/extensions.dart';
@@ -1371,6 +1372,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       builder: (context, child) {
         return Theme(data: Theme.of(context).copyWith(), child: child!);
       },
+      locale: await Devicelocale.currentAsLocale,
     );
     if (newDate != null) {
       setEndDate(newDate, hour, minutes);
@@ -1392,7 +1394,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   Future<void> startDatePicker(BuildContext context) async {
     final hour = event.start?.hour;
     final minutes = event.start?.minute;
-
     unFocus();
     final newDate = await showDatePicker(
       context: context,
@@ -1402,6 +1403,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       builder: (context, child) {
         return Theme(data: Theme.of(context).copyWith(), child: child!);
       },
+      locale: await Devicelocale.currentAsLocale,
     );
     if (newDate != null) {
       setStartDate(newDate, hour, minutes);

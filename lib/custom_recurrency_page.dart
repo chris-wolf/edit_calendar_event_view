@@ -1,4 +1,5 @@
 import 'package:device_calendar/device_calendar.dart';
+import 'package:devicelocale/devicelocale.dart';
 import 'package:edit_calendar_event_view/extensions.dart';
 import 'package:edit_calendar_event_view/recurrency_frequency.dart';
 import 'package:edit_calendar_event_view/string_extensions.dart';
@@ -321,6 +322,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
                       initialDate: widget.eventStartDate ?? DateTime.now(),
                       firstDate: widget.eventStartDate ?? DateTime.now(),
                       lastDate: (widget.eventStartDate ?? DateTime.now()).add(const Duration(days: 3650)),
+                      locale: await Devicelocale.currentAsLocale,
                     );
                     if (date != null) {
                       setState(() {
@@ -339,6 +341,7 @@ class _CustomRecurrencePageState extends State<CustomRecurrencePage> {
               initialDate: widget.eventStartDate ?? DateTime.now(),
               firstDate: widget.eventStartDate ?? DateTime.now(),
               lastDate: (widget.eventStartDate ?? DateTime.now()).add(const Duration(days: 3650)),
+              locale: await Devicelocale.currentAsLocale,
               );
 
             if (date != null) {

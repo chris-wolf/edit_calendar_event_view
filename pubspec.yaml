@@ -21,6 +21,7 @@ dependencies:
   sprintf: ^7.0.0
   timezone: ^0.9.4
   url_launcher: ^6.3.0
+  devicelocale: ^0.8.1
 
 dev_dependencies:
   flutter_test:
