@@ -145,6 +145,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   FocusNode websiteFocusNode = FocusNode();
   List<EventColor> eventColors = [];
   String? colorsFromCalendarId;
+  bool eventColorChanged = false;
 
   @override
   void initState() {
@@ -315,7 +316,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 ),
             ],
           ),
-          floatingActionButton: calendar?.isReadOnly ?? false
+          floatingActionButton: (calendar?.isReadOnly ?? false) && eventColorChanged == false
               ? null
               : FloatingActionButton(
             tooltip: 'save'.localize(),
@@ -603,99 +604,19 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                       ),
                     ),
             ),
-            AbsorbPointer(
-                absorbing: calendar?.isReadOnly ?? false,
-                child: Card(
+           Card(
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8.0))),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                child: Icon(Icons.calendar_month,
-                                    color: iconColor),
-                              ),
-                              Expanded(
-                                child: ListTile(
-                                  title: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Expanded(child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text('${'calendar'.localize()}',
-                                          maxLines: 1,
-                                          style: Theme
-                                              .of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                              color: buttonTextColor),),
-                                      )),
-                                      Padding(
-                                        padding:
-                                        const EdgeInsets.only(right: 4.0),
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color:
-                                              Color(calendar?.color ?? 0)),
-                                        ),
-                                      ),
-                                      Text(calendar?.name ??
-                                          'select_calendar'.localize()),
-                                    ],
-                                  ),
-                                  onTap: () async {
-                                    final calendars = widget
-                                        .availableCalendars ??
-                                        (await _deviceCalendarPlugin
-                                            .retrieveCalendars())
-                                            .data
-                                            ?.where((element) =>
-                                        element.isReadOnly == false)
-                                            .toList() ??
-                                        [];
-                                    if (!context.mounted) {
-                                      return;
-                                    }
-                                    var result = await CalendarSelectionDialog
-                                        .showCalendarDialog(
-                                        context,
-                                        'select_calendar'.localize(),
-                                        null,
-                                        calendars,
-                                        calendars.firstWhereOrNull(
-                                                (element) =>
-                                            element.id ==
-                                                calendar?.id));
-                                    if (result?.id != null &&
-                                        result?.id != event.calendarId) {
-                                      event.updateEventColor(null);
-                                      setState(() {
-                                        calendar = result;
-                                        event.calendarId = result?.id;
-                                      });
-                                      loadEventColors();
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          if(eventColors.isNotEmpty)
-                            divider(),
-                          if(eventColors.isNotEmpty)
-                            Row(
+                          AbsorbPointer(
+                            absorbing: calendar?.isReadOnly ?? false,
+                            child: Row(
                               children: [
                                 Padding(
                                   padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                  child: Icon(Icons.color_lens_outlined,
+                                  child: Icon(Icons.calendar_month,
                                       color: iconColor),
                                 ),
                                 Expanded(
@@ -705,8 +626,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                       children: [
                                         Expanded(child: Align(
                                           alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            '${'event_color'.localize()}',
+                                          child: Text('${'calendar'.localize()}',
+                                            maxLines: 1,
                                             style: Theme
                                                 .of(context)
                                                 .textTheme
@@ -714,101 +635,188 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                 ?.copyWith(
                                                 color: buttonTextColor),),
                                         )),
-                                        if ((event.color ?? 0) != 0)
-                                          Container(
+                                        Padding(
+                                          padding:
+                                          const EdgeInsets.only(right: 4.0),
+                                          child: Container(
                                             alignment: Alignment.center,
-                                            width: 20,
-                                            height: 20,
+                                            width: 10,
+                                            height: 10,
                                             decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color:
-                                                Color(event.color ?? 0)),
+                                                Color(calendar?.color ?? 0)),
                                           ),
-                                        if ((event.color ?? 0) == 0)
-                                          Text('not_set'.localize(),
-                                          ),
+                                        ),
+                                        Text(calendar?.name ??
+                                            'select_calendar'.localize()),
                                       ],
                                     ),
                                     onTap: () async {
-                                      final color = await ColorPickerDialog
-                                          .selectColorDialog(
-                                          eventColors.map((eventColor) =>
-                                              Color(eventColor.color)).toList(),
+                                      final calendars = widget
+                                          .availableCalendars ??
+                                          (await _deviceCalendarPlugin
+                                              .retrieveCalendars())
+                                              .data
+                                              ?.where((element) =>
+                                          element.isReadOnly == false)
+                                              .toList() ??
+                                          [];
+                                      if (!context.mounted) {
+                                        return;
+                                      }
+                                      var result = await CalendarSelectionDialog
+                                          .showCalendarDialog(
                                           context,
-                                          selectedColor: event.color == null
-                                              ? null
-                                              : Color(event.color!),
-                                          canReset: colorsFromCalendarId ==
-                                              null);
-                                      final eventColor = eventColors
-                                          .firstWhereOrNull((eventColor) =>
-                                      Color(eventColor.color) == color);
-                                      if (eventColor != null ||
-                                          color == Colors.transparent) {
+                                          'select_calendar'.localize(),
+                                          null,
+                                          calendars,
+                                          calendars.firstWhereOrNull(
+                                                  (element) =>
+                                              element.id ==
+                                                  calendar?.id));
+                                      if (result?.id != null &&
+                                          result?.id != event.calendarId) {
+                                        event.updateEventColor(null);
                                         setState(() {
-                                          event.updateEventColor(eventColor);
+                                          calendar = result;
+                                          event.calendarId = result?.id;
                                         });
+                                        loadEventColors();
                                       }
                                     },
                                   ),
                                 ),
                               ],
                             ),
-                          divider(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
-                                child: Icon(Icons.alarm,
-                                    color: iconColor),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    for (final reminder
-                                    in event.reminders ?? [])
-                                      ListTile(
-                                        title: Text(alarmTitle(reminder)),
-                                        trailing: IconButton(
-                                          icon: Icon(
-                                            semanticLabel: 'remove_reminder'
-                                                .localize(),
-                                            Icons.close_rounded,
-                                            color: buttonTextColor,
-                                          ),
-                                          onPressed: () {
-                                            List<Reminder> newReminders = [
-                                              ...(event.reminders ?? [])
-                                            ];
-                                            newReminders.remove(reminder);
-                                            setState(() {
-                                              event.reminders = newReminders;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ListTile(
-                                      title: Text(
-                                        'add_reminder'.localize(),
-                                        style: Theme
-                                            .of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(color: buttonTextColor),
+                          ),
+                          if(eventColors.isNotEmpty)
+                            divider(),
+                          if(eventColors.isNotEmpty)
+                            AbsorbPointer(
+                              absorbing: (calendar?.isReadOnly ?? false) && EditCalendarEventPage.fallbackColors.isEmpty,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                    child: Icon(Icons.color_lens_outlined,
+                                        color: iconColor),
+                                  ),
+                                  Expanded(
+                                    child: ListTile(
+                                      title: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Expanded(child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              '${'event_color'.localize()}',
+                                              style: Theme
+                                                  .of(context)
+                                                  .textTheme
+                                                  .titleMedium
+                                                  ?.copyWith(
+                                                  color: buttonTextColor),),
+                                          )),
+                                          if ((event.color ?? 0) != 0)
+                                            Container(
+                                              alignment: Alignment.center,
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color:
+                                                  Color(event.color ?? 0)),
+                                            ),
+                                          if ((event.color ?? 0) == 0)
+                                            Text('not_set'.localize(),
+                                            ),
+                                        ],
                                       ),
                                       onTap: () async {
-                                        addReminder();
+                                        final color = await ColorPickerDialog
+                                            .selectColorDialog(
+                                            eventColors.map((eventColor) =>
+                                                Color(eventColor.color)).toList(),
+                                            context,
+                                            selectedColor: event.color == null
+                                                ? null
+                                                : Color(event.color!),
+                                            canReset: colorsFromCalendarId ==
+                                                null);
+                                        final eventColor = eventColors
+                                            .firstWhereOrNull((eventColor) =>
+                                        Color(eventColor.color) == color);
+                                        if (eventColor != null ||
+                                            color == Colors.transparent) {
+                                          eventColorChanged = true;
+                                          setState(() {
+                                            event.updateEventColor(eventColor);
+                                          });
+                                        }
                                       },
                                     ),
-                                  ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          divider(),
+                          AbsorbPointer(
+                          absorbing: calendar?.isReadOnly ?? false,
+                          child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 16, 0, 20),
+                                  child: Icon(Icons.alarm,
+                                      color: iconColor),
                                 ),
-                              )
-                            ],
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      for (final reminder
+                                      in event.reminders ?? [])
+                                        ListTile(
+                                          title: Text(alarmTitle(reminder)),
+                                          trailing: IconButton(
+                                            icon: Icon(
+                                              semanticLabel: 'remove_reminder'
+                                                  .localize(),
+                                              Icons.close_rounded,
+                                              color: buttonTextColor,
+                                            ),
+                                            onPressed: () {
+                                              List<Reminder> newReminders = [
+                                                ...(event.reminders ?? [])
+                                              ];
+                                              newReminders.remove(reminder);
+                                              setState(() {
+                                                event.reminders = newReminders;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ListTile(
+                                        title: Text(
+                                          'add_reminder'.localize(),
+                                          style: Theme
+                                              .of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(color: buttonTextColor),
+                                        ),
+                                        onTap: () async {
+                                          addReminder();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           )
                         ],
                       ),
-                    ),
             ),
                     Card(
                       shape: const RoundedRectangleBorder(
@@ -1454,7 +1462,6 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     event.title = _titleController.text;
     event.description = _descriptionController.text;
     event.location = _locationController.text;
-    EventColor? bufferedEventColor;
     event.url = parseUrl(_websiteController.text.trim());
     if (allDay() && event.start != null && event.end != null) {
      event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
@@ -1467,12 +1474,14 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         0) { // fallBack Color which doesnt exist in db so dont store it!
       event.colorKey = null;
     }
+    if (calendar?.isReadOnly == false) {
     final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
     event.eventId = eventId?.data;
     if (event.eventId == null) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
           SnackBar(content: Text('error_saving_event'.localize())));
       return;
+    }
     }
     event.colorKey = cachedColorKey;
     if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
