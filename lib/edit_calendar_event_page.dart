@@ -1162,7 +1162,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     unFocus();
     Reminder? reminder = (await showDialog<Reminder>(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext dialogContext) {
           return SimpleDialog(
             backgroundColor: EditCalendarEventPage.backgroundColor,
             children: <Widget>[
@@ -1174,7 +1174,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   true))
                 SimpleDialogOption(
                   onPressed: () {
-                    Navigator.pop(context, reminder);
+                    Navigator.pop(dialogContext, reminder);
                   },
                   padding: const EdgeInsets.symmetric(
                       vertical: 12.0, horizontal: 24.0),
@@ -1182,7 +1182,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 ),
               SimpleDialogOption(
                 onPressed: () {
-                  Navigator.pop(context, Reminder(minutes: maxInteger));
+                  Navigator.pop(dialogContext, Reminder(minutes: maxInteger));
                 },
                 padding: const EdgeInsets.symmetric(
                     vertical: 12.0, horizontal: 24.0),
@@ -1197,7 +1197,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     if (reminder?.minutes == maxInteger) {
       reminder = reminder = (await showDialog<Reminder>(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext dialogContext) {
           TextEditingController numberController =
           TextEditingController(text: '10');
           int currentIndex = 0;
@@ -1205,7 +1205,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             backgroundColor: EditCalendarEventPage.backgroundColor,
             title: Text('custom'.localize()),
             content: StatefulBuilder(
-              builder: (BuildContext context,
+              builder: (BuildContext statefulContext,
                   void Function(void Function()) setState) {
                 return SizedBox(
                     height: 280,
@@ -1239,7 +1239,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                 child: Text('add'.localize()),
                 onPressed: () {
                   int number = int.tryParse(numberController.text) ?? 0;
-                  Navigator.of(context).pop(Reminder(
+                  Navigator.of(dialogContext).pop(Reminder(
                       minutes:
                       number * TimeUnit.values[currentIndex].inMinutes()));
                 },
