@@ -146,6 +146,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   List<EventColor> eventColors = [];
   String? colorsFromCalendarId;
   bool eventColorChanged = false;
+  bool _isSaving = false;
+  bool _isDeleting = false;
 
   @override
   void initState() {
@@ -334,15 +336,30 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   Future<void> deleteEvent(BuildContext context) async {
-    final event = widget.event;
-    if (event != null) {
-      if (event.recurrenceRule != null ) {
-        event.recurrenceRule = null;
-        await _deviceCalendarPlugin.createOrUpdateEvent(event); // in local calendar deleting recurring events can cause other events to disappear, so remove recurring before deleting
+    if (_isDeleting) {
+      return;
+    }
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
+      return;
+    }
+    _isDeleting = true;
+    try {
+      final event = widget.event;
+      if (event != null) {
+        if (event.recurrenceRule != null ) {
+          event.recurrenceRule = null;
+          await _deviceCalendarPlugin.createOrUpdateEvent(event); // in local calendar deleting recurring events can cause other events to disappear, so remove recurring before deleting
+        }
+        await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
+        if (context.mounted) {
+          if (ModalRoute.of(context)?.isCurrent ?? false) {
+            Navigator.pop(
+                context, (resultType: ResultType.deleted, event: event));
+          }
+        }
       }
-      await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
-      Navigator.pop(
-          context, (resultType: ResultType.deleted, event: event));
+    } finally {
+      _isDeleting = false;
     }
   }
 
@@ -1431,67 +1448,82 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   Future confirmPress(BuildContext context) async {
-    if (event.status == EventStatus.Canceled) {
-      final cancel = await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('confirm_cancellation'.localize()),
-            content: Text('confirm_cancellation_text'.localize()),
-            actions: <Widget>[
-              TextButton(
-                child: Text('keep_event'.localize()),
-                onPressed: () {
-                  Navigator.of(context).pop(false); // Close the dialog
-                },
-              ),
-              TextButton(
-                child: Text('delete'.localize()),
-                onPressed: () {
-                  Navigator.of(context).pop(true); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (cancel != true) {
-        event.status = EventStatus.Tentative;
-      }
-    }
-    event.title = _titleController.text;
-    event.description = _descriptionController.text;
-    event.location = _locationController.text;
-    event.url = parseUrl(_websiteController.text.trim());
-    if (allDay() && event.start != null && event.end != null) {
-     event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
-      event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day, 23, 59, 59, 999);
-    }
-
-    final cachedEnd = event.end;
-    final cachedColorKey = event.colorKey;
-    if ((event.colorKey ?? 0) <
-        0) { // fallBack Color which doesnt exist in db so dont store it!
-      event.colorKey = null;
-    }
-    if (calendar?.isReadOnly == false) {
-    final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
-    event.eventId = eventId?.data;
-    if (event.eventId == null) {
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text('error_saving_event'.localize())));
+    if (_isSaving) {
       return;
     }
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
+      return;
     }
-    event.colorKey = cachedColorKey;
-    if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
-      event.end = cachedEnd;
-    }
-    if (context.mounted) {
-      Navigator.pop(
-          context, (resultType: event.status == EventStatus.Canceled
-          ? ResultType.deleted
-          : ResultType.saved, event: event));
+    _isSaving = true;
+    try {
+      if (event.status == EventStatus.Canceled) {
+        final cancel = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('confirm_cancellation'.localize()),
+              content: Text('confirm_cancellation_text'.localize()),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('keep_event'.localize()),
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Close the dialog
+                  },
+                ),
+                TextButton(
+                  child: Text('delete'.localize()),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Close the dialog
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        if (cancel != true) {
+          event.status = EventStatus.Tentative;
+        }
+      }
+      event.title = _titleController.text;
+      event.description = _descriptionController.text;
+      event.location = _locationController.text;
+      event.url = parseUrl(_websiteController.text.trim());
+      if (allDay() && event.start != null && event.end != null) {
+       event.start = TZDateTime.utc(event.start!.year, event.start!.month, event.start!.day);
+        event.end = TZDateTime.utc(event.end!.year, event.end!.month, event.end!.day, 23, 59, 59, 999);
+      }
+
+      final cachedEnd = event.end;
+      final cachedColorKey = event.colorKey;
+      if ((event.colorKey ?? 0) <
+          0) { // fallBack Color which doesnt exist in db so dont store it!
+        event.colorKey = null;
+      }
+      if (calendar?.isReadOnly == false) {
+      final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
+      event.eventId = eventId?.data;
+      if (event.eventId == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+              SnackBar(content: Text('error_saving_event'.localize())));
+        }
+        return;
+      }
+      }
+      event.colorKey = cachedColorKey;
+      if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
+        event.end = cachedEnd;
+      }
+      if (context.mounted) {
+        if (ModalRoute.of(context)?.isCurrent ?? false) {
+          Navigator.pop(
+              context, (resultType: event.status == EventStatus.Canceled
+              ? ResultType.deleted
+              : ResultType.saved, event: event));
+        }
+      }
+    } finally {
+      _isSaving = false;
     }
   }
 
