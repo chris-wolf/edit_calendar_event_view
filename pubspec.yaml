@@ -9,26 +9,28 @@ environment:
   flutter: ">=2.5.0"
 
 dependencies:
-  collection: ^1.18.0
+  collection: ^1.19.1
   device_calendar:
     path: ../device_calendar
   flutter:
     sdk: flutter
-  flutter_timezone: ^3.0.1
+  flutter_timezone: ^5.1.0
   intl: ^0.20.2
-  macos_ui: ^2.0.7
+  macos_ui: ^2.2.2
   plugin_platform_interface: ^2.1.8
   sprintf: ^7.0.0
-  timezone: ^0.9.4
-  url_launcher: ^6.3.0
+  timezone: ^0.9.0
+  url_launcher: ^6.3.2
   devicelocale: ^0.8.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1
+  flutter_lints: ^6.0.0
 
 
 screenshots:
   - description: 'Edit event view for iOS'
     path: example/screenshots/edit_calendar_event_view_ios_screenshot.png
+
+

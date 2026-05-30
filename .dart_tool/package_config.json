@@ -3,7 +3,7 @@
   "packages": [
     {
       "name": "appkit_ui_element_colors",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/appkit_ui_element_colors-1.0.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/appkit_ui_element_colors-1.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -21,7 +21,7 @@
     },
     {
       "name": "characters",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/characters-1.4.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/characters-1.4.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -45,13 +45,13 @@
     },
     {
       "name": "devicelocale",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/devicelocale-0.8.1",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/devicelocale-0.8.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
       "name": "equatable",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/equatable-2.0.5",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/equatable-2.0.8",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -63,39 +63,39 @@
     },
     {
       "name": "flutter",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/packages/flutter",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/packages/flutter",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.10"
     },
     {
       "name": "flutter_lints",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/flutter_lints-2.0.1",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.8"
     },
     {
       "name": "flutter_test",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/packages/flutter_test",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/packages/flutter_test",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.10"
     },
     {
       "name": "flutter_timezone",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/flutter_timezone-3.0.1",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/flutter_timezone-5.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.4"
     },
     {
       "name": "flutter_web_plugins",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/packages/flutter_web_plugins",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/packages/flutter_web_plugins",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.10"
     },
     {
       "name": "gradient_borders",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/gradient_borders-1.0.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/gradient_borders-1.0.4",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "intl",
@@ -123,39 +123,39 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/lints-2.0.1",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/lints-6.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.8"
     },
     {
       "name": "macos_ui",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/macos_ui-2.0.7",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/macos_ui-2.2.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.9"
+    },
+    {
+      "name": "macos_window_utils",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/macos_window_utils-1.9.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
-      "name": "macos_window_utils",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/macos_window_utils-1.4.0",
-      "packageUri": "lib/",
-      "languageVersion": "2.18"
-    },
-    {
       "name": "matcher",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/matcher-0.12.17",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/matcher-0.12.19",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
+      "languageVersion": "3.7"
     },
     {
       "name": "material_color_utilities",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/material_color_utilities-0.11.1",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/material_color_utilities-0.13.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.5"
     },
     {
       "name": "meta",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/meta-1.16.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/meta-1.18.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.5"
     },
     {
       "name": "path",
@@ -177,9 +177,9 @@
     },
     {
       "name": "sky_engine",
-      "rootUri": "file:///Users/christopherwolf/fvm/versions/3.29/bin/cache/pkg/sky_engine",
+      "rootUri": "file:///Users/christopherwolf/fvm/versions/stable/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
-      "languageVersion": "3.8"
+      "languageVersion": "3.10"
     },
     {
       "name": "source_span",
@@ -219,9 +219,9 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/test_api-0.7.6",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/test_api-0.7.11",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.7"
     },
     {
       "name": "time",
@@ -237,9 +237,9 @@
     },
     {
       "name": "url_launcher",
-      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher-6.3.0",
+      "rootUri": "file:///Users/christopherwolf/.pub-cache/hosted/pub.dev/url_launcher-6.3.2",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.6"
     },
     {
       "name": "url_launcher_android",
@@ -309,8 +309,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.9.2",
-  "flutterRoot": "file:///Users/christopherwolf/fvm/versions/3.29",
-  "flutterVersion": "3.35.7",
+  "generatorVersion": "3.12.0",
+  "flutterRoot": "file:///Users/christopherwolf/fvm/versions/stable",
+  "flutterVersion": "3.44.0",
   "pubCache": "file:///Users/christopherwolf/.pub-cache"
 }
