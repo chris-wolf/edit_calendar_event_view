@@ -149,6 +149,9 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   bool _isSaving = false;
   bool _isDeleting = false;
 
+  int? originalStartMillis;
+  int? originalEndMillis;
+
   @override
   void initState() {
     super.initState();
@@ -159,6 +162,8 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     calendar = widget.calendar;
     if (widget.event != null) {
       event = widget.event!;
+      originalStartMillis = event.start?.millisecondsSinceEpoch;
+      originalEndMillis = event.end?.millisecondsSinceEpoch;
       // make sure start and end hafve the same timezone
       event.end = tz.TZDateTime.from(
           event.end ?? DateTime.now().add(Duration(hours: 1)),
@@ -346,12 +351,72 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     try {
       final event = widget.event;
       if (event != null) {
-        if (event.recurrenceRule != null ) {
-          event.recurrenceRule = null;
-          await _deviceCalendarPlugin.createOrUpdateEvent(event); // in local calendar deleting recurring events can cause other events to disappear, so remove recurring before deleting
+        bool deleteSuccessful = false;
+        if (event.recurrenceRule != null) {
+          final choice = await showDialog<String>(
+            context: context,
+            builder: (BuildContext context) {
+              return SimpleDialog(
+                title: Text('delete_recurring_event'.localize()),
+                backgroundColor: EditCalendarEventPage.backgroundColor,
+                children: <Widget>[
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, 'only_this'),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0),
+                    child: Text('delete_only_this_instance'.localize()),
+                  ),
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, 'this_and_future'),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0),
+                    child: Text('delete_this_and_future_instances'.localize()),
+                  ),
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, 'all'),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0),
+                    child: Text('delete_all_instances'.localize()),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (choice == null) {
+            return;
+          }
+
+          if (choice == 'only_this') {
+            final result = await _deviceCalendarPlugin.deleteEventInstance(
+              event.calendarId,
+              event.eventId,
+              originalStartMillis,
+              originalEndMillis,
+              false,
+            );
+            deleteSuccessful = result.data ?? false;
+          } else if (choice == 'this_and_future') {
+            final result = await _deviceCalendarPlugin.deleteEventInstance(
+              event.calendarId,
+              event.eventId,
+              originalStartMillis,
+              originalEndMillis,
+              true,
+            );
+            deleteSuccessful = result.data ?? false;
+          } else if (choice == 'all') {
+            event.recurrenceRule = null;
+            await _deviceCalendarPlugin.createOrUpdateEvent(event);
+            final result = await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
+            deleteSuccessful = result.data ?? false;
+          }
+        } else {
+          final result = await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
+          deleteSuccessful = result.data ?? false;
         }
-        await _deviceCalendarPlugin.deleteEvent(event.calendarId, event.eventId);
-        if (context.mounted) {
+
+        if (deleteSuccessful && context.mounted) {
           if (ModalRoute.of(context)?.isCurrent ?? false) {
             Navigator.pop(
                 context, (resultType: ResultType.deleted, event: event));
@@ -1500,15 +1565,71 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         event.colorKey = null;
       }
       if (calendar?.isReadOnly == false) {
-      final eventId = await _deviceCalendarPlugin.createOrUpdateEvent(event);
-      event.eventId = eventId?.data;
-      if (event.eventId == null) {
-        if (context.mounted) {
-          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-              SnackBar(content: Text('error_saving_event'.localize())));
+        Result<String>? eventIdResult;
+        if (widget.event != null && widget.event!.recurrenceRule != null) {
+          final choice = await showDialog<String>(
+            context: context,
+            builder: (BuildContext context) {
+              return SimpleDialog(
+                title: Text('edit_recurring_event'.localize()),
+                backgroundColor: EditCalendarEventPage.backgroundColor,
+                children: <Widget>[
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, 'only_this'),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0),
+                    child: Text('edit_only_this_instance'.localize()),
+                  ),
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, 'this_and_future'),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0),
+                    child: Text('edit_this_and_future_instances'.localize()),
+                  ),
+                  SimpleDialogOption(
+                    onPressed: () => Navigator.pop(context, 'all'),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12.0, horizontal: 24.0),
+                    child: Text('edit_all_instances'.localize()),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (choice == null) {
+            return;
+          }
+
+          if (choice == 'only_this') {
+            eventIdResult = await _deviceCalendarPlugin.createOrUpdateEvent(
+              event,
+              instanceStartDate: originalStartMillis,
+              instanceEndDate: originalEndMillis,
+              updateFollowingInstances: false,
+            );
+          } else if (choice == 'this_and_future') {
+            eventIdResult = await _deviceCalendarPlugin.createOrUpdateEvent(
+              event,
+              instanceStartDate: originalStartMillis,
+              instanceEndDate: originalEndMillis,
+              updateFollowingInstances: true,
+            );
+          } else if (choice == 'all') {
+            eventIdResult = await _deviceCalendarPlugin.createOrUpdateEvent(event);
+          }
+        } else {
+          eventIdResult = await _deviceCalendarPlugin.createOrUpdateEvent(event);
         }
-        return;
-      }
+
+        event.eventId = eventIdResult?.data;
+        if (event.eventId == null) {
+          if (context.mounted) {
+            ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+                SnackBar(content: Text('error_saving_event'.localize())));
+          }
+          return;
+        }
       }
       event.colorKey = cachedColorKey;
       if (allDay()) { // for allDay the end Time was nextDay 00:00 insteasdf of thisDas 00:00 when loading normally, so caced endTime to fix this
