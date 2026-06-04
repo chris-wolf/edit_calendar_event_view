@@ -151,6 +151,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
 
   int? originalStartMillis;
   int? originalEndMillis;
+  bool wasRecurring = false;
 
   @override
   void initState() {
@@ -164,6 +165,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       event = widget.event!;
       originalStartMillis = event.start?.millisecondsSinceEpoch;
       originalEndMillis = event.end?.millisecondsSinceEpoch;
+      wasRecurring = event.recurrenceRule != null;
       // make sure start and end hafve the same timezone
       event.end = tz.TZDateTime.from(
           event.end ?? DateTime.now().add(Duration(hours: 1)),
@@ -352,7 +354,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       final event = widget.event;
       if (event != null) {
         bool deleteSuccessful = false;
-        if (event.recurrenceRule != null) {
+        if (wasRecurring) {
           final choice = await showDialog<String>(
             context: context,
             builder: (BuildContext context) {
@@ -1566,7 +1568,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       }
       if (calendar?.isReadOnly == false) {
         Result<String>? eventIdResult;
-        if (widget.event != null && widget.event!.recurrenceRule != null) {
+        if (wasRecurring) {
           final choice = await showDialog<String>(
             context: context,
             builder: (BuildContext context) {
