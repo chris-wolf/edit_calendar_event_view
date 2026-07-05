@@ -219,8 +219,13 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
     List<EventColor>? retrievedColors;
 
     if (currCalendar != null) {
-      retrievedColors = await _deviceCalendarPlugin.retrieveEventColors(currCalendar);
+      try {
+        retrievedColors = await _deviceCalendarPlugin.retrieveEventColors(currCalendar);
+      } catch (e) {
+        debugPrint('Error retrieving event colors: $e');
+      }
     }
+    if (!mounted) return;
     setState(() {
 
     if (retrievedColors?.isNotEmpty ?? false) {
@@ -759,6 +764,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                   (element) =>
                                               element.id ==
                                                   calendar?.id));
+                                      if (!mounted) return;
                                       if (result?.id != null &&
                                           result?.id != event.calendarId) {
                                         event.updateEventColor(null);
@@ -828,6 +834,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                                 : Color(event.color!),
                                             canReset: colorsFromCalendarId ==
                                                 null);
+                                        if (!mounted) return;
                                         final eventColor = eventColors
                                             .firstWhereOrNull((eventColor) =>
                                         Color(eventColor.color) == color);
@@ -934,6 +941,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                     final timezone = await showSearch(
                                         context: context,
                                         delegate: TimeZoneSearchDelegate());
+                                    if (!mounted) return;
                                     if (timezone is MapEntry<String,
                                         Location>) {
                                       setState(() {
@@ -1316,6 +1324,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
         },
       ));
     }
+    if (!mounted) return;
     if (reminder != null) {
       setState(() {
         event.reminders = (event.reminders ?? [])
@@ -1380,6 +1389,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
             builder: (context) => CustomRecurrencePage(event.start)),
       );
     }
+    if (!mounted) return;
     if (rule == null) { // back pressed
       return;
     }
@@ -1396,6 +1406,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(endDate()),
     ).then((time) {
+      if (!mounted) return;
       if (time != null) {
         setState(() {
           event.end = event.end?.add(Duration(
@@ -1415,6 +1426,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(startDate()),
     );
+    if (!mounted) return;
     if (time != null) {
       Duration? duration = event.end?.difference(event.start ?? DateTime.now());
       if ((duration?.inMinutes ?? 0) <= 0) {
@@ -1436,6 +1448,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   void setStartDate(DateTime newDate, int? hour, int? minutes) {
+    if (!mounted) return;
     Duration? duration = event.end?.difference(event.start ?? DateTime.now());
     if ((duration?.inMinutes ?? 0) <= 0) {
       duration = const Duration(minutes: 1);
@@ -1472,6 +1485,7 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
   }
 
   void setEndDate(DateTime newDate, int? hour, int? minutes) {
+    if (!mounted) return;
     setState(() {
       event.end = epochMillisToTZDateTime(newDate
           .add(Duration(hours: hour ?? 0, minutes: minutes ?? 0))
