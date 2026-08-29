@@ -926,10 +926,10 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                                   absorbing: calendar?.isReadOnly ?? false,
                                   child: ListTile(
                                   title: Text('${event.start
-                                      ?.timeZoneName} (UTC ${(event.start
-                                      ?.timeZone.offset ?? 0) >= 0
+                                      ?.timeZoneName} (UTC ${((event.start
+                                      ?.timeZone.offset as int?) ?? 0) >= 0
                                       ? '+'
-                                      : ''}${(event.start?.timeZone.offset ??
+                                      : ''}${((event.start?.timeZone.offset as int?) ??
                                       0) ~/ (60 * 60 * 1000)})',
                                       style: Theme
                                           .of(context)

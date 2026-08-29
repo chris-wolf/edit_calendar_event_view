@@ -19,9 +19,9 @@ dependencies:
   macos_ui: ^2.2.2
   plugin_platform_interface: ^2.1.8
   sprintf: ^7.0.0
-  timezone: ^0.9.0
+  timezone: ^0.11.1
   url_launcher: ^6.3.2
-  devicelocale: ^0.8.1
+  devicelocale: ^0.9.0
 
 dev_dependencies:
   flutter_test:
