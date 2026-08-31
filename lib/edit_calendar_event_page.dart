@@ -297,6 +297,25 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                   },
                 ),
               ),
+            if (widget.event != null && (calendar?.isReadOnly ?? false))
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: TextButton(
+                  onPressed: () async {
+                    await hideEvent(context);
+                  },
+                  child: Text(
+                    'hide'.localize(),
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
           ],
           macOsActions: [
             if (widget.event != null && calendar?.isReadOnly == false)
@@ -309,6 +328,16 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
                     deleteEvent(context);
                   },
                   showLabel: false),
+            if (widget.event != null && (calendar?.isReadOnly ?? false))
+              ToolBarIconButton(
+                  label: 'hide'.localize(),
+                  icon: const MacosIcon(
+                    CupertinoIcons.eye_slash,
+                  ),
+                  onPressed: () {
+                    hideEvent(context);
+                  },
+                  showLabel: true),
           ],
           body:
           Stack(
@@ -432,6 +461,35 @@ class _EditCalendarEventPageState extends State<EditCalendarEventPage> {
       }
     } finally {
       _isDeleting = false;
+    }
+  }
+
+  Future<void> hideEvent(BuildContext context) async {
+    final performHide = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: EditCalendarEventPage.backgroundColor,
+        title: Text('hide_this_event'.localize()),
+        content: Text('hide_this_event_question'.localize()),
+        actions: [
+          TextButton(
+            child: Text('cancel'.localize()),
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
+          TextButton(
+            child: Text('hide_this_event'.localize(),
+                style: const TextStyle(color: Colors.red)),
+            onPressed: () => Navigator.pop(ctx, true),
+          ),
+        ],
+      ),
+    );
+
+    if (performHide == true && context.mounted) {
+      if (ModalRoute.of(context)?.isCurrent ?? false) {
+        Navigator.pop(
+            context, (resultType: ResultType.hidden, event: event));
+      }
     }
   }
 

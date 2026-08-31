@@ -10,7 +10,8 @@ import 'edit_calendar_event_view_platform_interface.dart';
 enum ResultType {
   saved,
   deleted,
-  canceled
+  canceled,
+  hidden
 }
 
 /// An implementation of [EditCalendarEventViewPlatform] that uses method channels.
